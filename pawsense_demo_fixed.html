@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PawSense — Demo</title>
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="PawSense" />
+  <link rel="icon" type="image/svg+xml" href="./icon-pawsense.svg" />
+  <link rel="apple-touch-icon" href="./icon-pawsense.svg" />
+  <link rel="manifest" href="./site.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -456,7 +462,7 @@
   </section>
 
   <section class="screen" id="screen-walk">
-    <div class="app-header"><div><h2>Walk</h2><p class="small muted" id="walkStateLabel">Ready to start</p></div></div>
+    <div class="app-header"><div><h2 id="walkHeaderTitle">Walk</h2><p class="small muted" id="walkStateLabel">Ready to start</p></div></div>
     <div id="walkInactiveState" class="section-stack"><div class="card section-stack" style="padding:22px"><h3 id="walkInactiveTitle">Walk not active</h3><p class="small muted" id="walkInactiveBody">Start a walk to appear on the map and detect nearby dogs.</p><button class="primary-btn" id="walkScreenStartBtn">Start Walk</button></div></div>
     <div id="walkActiveState" class="hidden">
       <div class="walk-stats-slot" id="walkStatsSlot">
@@ -472,14 +478,15 @@
   </section>
 
   <section class="screen" id="screen-dogs">
-    <div class="app-header"><div><h2>Dogs</h2><p class="small muted">Your personal dog records</p></div></div>
-    <div class="search-wrap"><input id="dogsSearch" placeholder="Search dogs"><div class="filter-row"><button class="filter-btn active" data-filter="all">All</button><button class="filter-btn" data-filter="known">Known</button><button class="filter-btn" data-filter="unknown">Unknown</button></div></div>
+    <div class="app-header"><div><h2 id="dogsHeaderTitle">Dogs</h2><p class="small muted" id="dogsHeaderSub">Your personal dog records</p></div></div>
+    <div class="search-wrap"><input id="dogsSearch" placeholder="Search dogs"><div class="filter-row"><button class="filter-btn active" data-filter="all" id="dogsFilterAll">All</button><button class="filter-btn" data-filter="known" id="dogsFilterKnown">Known</button><button class="filter-btn" data-filter="unknown" id="dogsFilterUnknown">Unknown</button></div></div>
     <div class="section-stack" id="dogsList"></div>
   </section>
 
   <section class="screen" id="screen-settings">
-    <div class="app-header"><div><h2>Settings</h2><p class="small muted">Simple controls for alerts and privacy</p></div></div>
+    <div class="app-header"><div><h2 id="settingsHeaderTitle">Settings</h2><p class="small muted" id="settingsHeaderSub">Simple controls for alerts and privacy</p></div></div>
     <div class="settings-list">
+      <div class="settings-card"><h3 style="margin-bottom:8px" id="languageCardTitle">Language</h3><div class="segment-group segment-group--double" id="languageChoiceGroup" role="group" aria-label="Language"><button type="button" class="segment-btn selected" data-lang="en" aria-pressed="true">English</button><button type="button" class="segment-btn" data-lang="es" aria-pressed="false">Español</button></div></div>
       <div class="settings-card"><h3 style="margin-bottom:8px">My Dog</h3><div class="settings-line"><div><strong id="settingsDogName">My Dog</strong><div class="tiny muted" id="settingsDogBreed">Breed</div></div><button class="ghost-btn" id="editProfileFromSettingsBtn">Edit Dog Profile</button></div></div>
       <div class="settings-card"><h3 style="margin-bottom:8px">Alerts</h3><div class="settings-line"><div><strong>Default behaviour</strong><div class="tiny muted">On a walk: only red (high-attention) triggers the on-screen alert, vibration and sound. Orange and green are map/list cues only — no automatic pop-up by colour.</div></div></div><div class="settings-line"><div><strong>Vibrations</strong></div><div class="toggle on" id="toggleVibrations"></div></div><div class="settings-line"><div><strong>Sound</strong></div><div class="toggle on" id="toggleSound"></div></div><div class="settings-line"><div><strong>Reset to default</strong></div><button class="ghost-btn" id="resetAlertsBtn">Reset</button></div></div>
       <div class="settings-card"><h3 style="margin-bottom:8px">Map Range</h3><div class="choice-grid"><div class="choice-card selected"><h3>Standard</h3><p class="small muted" style="margin-top:6px">Default range</p></div><div class="choice-card"><h3>Extended <span style="font-weight:500;color:var(--muted)">(Premium)</span></h3><p class="small muted" style="margin-top:6px">Available in Premium</p></div></div></div>
@@ -502,10 +509,10 @@
   </section>
 
   <nav class="bottom-nav hidden" id="bottomNav">
-    <button class="nav-item active" data-screen="home"><span class="nav-ico material-symbols-rounded" aria-hidden="true">home</span><span>Home</span></button>
-    <button class="nav-item" data-screen="walk"><span class="nav-ico material-symbols-rounded" aria-hidden="true">directions_walk</span><span>Walk</span></button>
-    <button class="nav-item" data-screen="dogs"><span class="nav-ico material-symbols-rounded" aria-hidden="true">pets</span><span>Dogs</span></button>
-    <button class="nav-item" data-screen="settings"><span class="nav-ico material-symbols-rounded" aria-hidden="true">settings</span><span>Settings</span></button>
+    <button class="nav-item active" data-screen="home"><span class="nav-ico material-symbols-rounded" aria-hidden="true">home</span><span id="navHomeLabel">Home</span></button>
+    <button class="nav-item" data-screen="walk"><span class="nav-ico material-symbols-rounded" aria-hidden="true">directions_walk</span><span id="navWalkLabel">Walk</span></button>
+    <button class="nav-item" data-screen="dogs"><span class="nav-ico material-symbols-rounded" aria-hidden="true">pets</span><span id="navDogsLabel">Dogs</span></button>
+    <button class="nav-item" data-screen="settings"><span class="nav-ico material-symbols-rounded" aria-hidden="true">settings</span><span id="navSettingsLabel">Settings</span></button>
   </nav>
 
   <div class="sheet-backdrop" id="sheetBackdrop"></div>
@@ -568,7 +575,31 @@ const WALK_PO_TOOLTIP_M=48;
    state.lastWalk = rolling summary of the most recent finished walk for Home; separate from dogs.known.
    state.dogs.known = persistent cumulative known-dogs collection for the Dogs tab (FREE + Premium). Never replace wholesale on walk lifecycle; only add/update rows when the app already saves or syncs a dog.
    state.premiumDogInsights.byDogId = optional Premium-only analytics (walkRefs, encounterHistory, lastSeenAt, etc.). Does not gate list access; merge runs only when isPremium. */
-const state={isPremium:false,user:{name:"",email:""},myDog:{photo:"",name:"",breed:"",age:"",sex:"",ownerName:"",walkerNotes:"",privacy:"Standard"},settings:{vibrations:true,sound:true},walk:{active:false,seconds:0,distanceKm:0,liveDogs:[],interval:null,spawnTimeouts:[],lastAlertAt:0,lastAlertKind:"",leafletMap:null,leafletDogLayer:null,leafletUserGroup:null,leafletViewReady:false,startTime:null,route:[],encounters:[],savedUnknownThisWalk:[],completedSession:null},dogs:{known:[{id:1,name:"Max",breed:"Labrador",note:"Friendly",colour:"green",photo:"",seenCount:4,lastSeen:"Today",known:true,lost:false,visibilityLevel:"standard",ownerNoteSharingEnabled:true,ownerNoteTags:[],ownerShortNote:"Very friendly with people and dogs.",dogStatus:"known",status:"known",profileData:{full:{breed:"Labrador",note:"Friendly"},limited:{breed:"Labrador",note:"—"}}},{id:2,name:"Luna",breed:"Spaniel",note:"Reactive — owner shares full notes on trusted circle",colour:"red",photo:"",seenCount:2,lastSeen:"Yesterday",known:true,lost:false,visibilityLevel:"limited",ownerNoteSharingEnabled:true,ownerNoteTags:["nervous_with_unfamiliar_dogs","may_react_if_approached_too_quickly"],ownerShortNote:"Full notes only to trusted circle.",dogStatus:"known",status:"known",profileData:{full:{breed:"Spaniel",note:"Reactive — owner shares full notes on trusted circle"},limited:{breed:"Spaniel",note:"Reactive (limited view)"}}},{id:3,name:"Unknown",breed:"",note:"",colour:"grey",photo:"",seenCount:1,lastSeen:"Today",known:false,lost:false,visibilityLevel:"limited",dogStatus:"unknown",status:"unknown",matched:false,profileData:{full:{breed:"",note:""},limited:{breed:"—",note:"—"}}}]},premiumDogInsights:{byDogId:{}},lastWalk:{distance:"1.2 km",duration:"18 min",dogsSeen:3,endedAt:null,encounterCount:0,savedUnknownCount:0,routePoints:0},docs:[],interactions:[{name:"Max",colour:"green",breed:"Labrador"},{name:"Luna",colour:"red",breed:"Spaniel"},{name:"Unknown",colour:"grey",breed:""}],temp:{otherDogPhoto:"",ownerPresent:"yes",detailDogPending:false},selectedDogId:null,walkDogOverlay:{isOpen:false,dogId:null,frozen:null}};
+const state={isPremium:false,user:{name:"",email:""},myDog:{photo:"",name:"",breed:"",age:"",sex:"",ownerName:"",walkerNotes:"",privacy:"Standard"},settings:{vibrations:true,sound:true,language:"en"},walk:{active:false,seconds:0,distanceKm:0,liveDogs:[],interval:null,spawnTimeouts:[],lastAlertAt:0,lastAlertKind:"",leafletMap:null,leafletDogLayer:null,leafletUserGroup:null,leafletViewReady:false,startTime:null,route:[],encounters:[],savedUnknownThisWalk:[],completedSession:null},dogs:{known:[{id:1,name:"Max",breed:"Labrador",note:"Friendly",colour:"green",photo:"",seenCount:4,lastSeen:"Today",known:true,lost:false,visibilityLevel:"standard",ownerNoteSharingEnabled:true,ownerNoteTags:[],ownerShortNote:"Very friendly with people and dogs.",dogStatus:"known",status:"known",profileData:{full:{breed:"Labrador",note:"Friendly"},limited:{breed:"Labrador",note:"—"}}},{id:2,name:"Luna",breed:"Spaniel",note:"Reactive — owner shares full notes on trusted circle",colour:"red",photo:"",seenCount:2,lastSeen:"Yesterday",known:true,lost:false,visibilityLevel:"limited",ownerNoteSharingEnabled:true,ownerNoteTags:["nervous_with_unfamiliar_dogs","may_react_if_approached_too_quickly"],ownerShortNote:"Full notes only to trusted circle.",dogStatus:"known",status:"known",profileData:{full:{breed:"Spaniel",note:"Reactive — owner shares full notes on trusted circle"},limited:{breed:"Spaniel",note:"Reactive (limited view)"}}},{id:3,name:"Unknown",breed:"",note:"",colour:"grey",photo:"",seenCount:1,lastSeen:"Today",known:false,lost:false,visibilityLevel:"limited",dogStatus:"unknown",status:"unknown",matched:false,profileData:{full:{breed:"",note:""},limited:{breed:"—",note:"—"}}}]},premiumDogInsights:{byDogId:{}},lastWalk:{distance:"1.2 km",duration:"18 min",dogsSeen:3,endedAt:null,encounterCount:0,savedUnknownCount:0,routePoints:0},docs:[],interactions:[{name:"Max",colour:"green",breed:"Labrador"},{name:"Luna",colour:"red",breed:"Spaniel"},{name:"Unknown",colour:"grey",breed:""}],temp:{otherDogPhoto:"",ownerPresent:"yes",detailDogPending:false},selectedDogId:null,walkDogOverlay:{isOpen:false,dogId:null,frozen:null}};
+const I18N={en:{navHome:"Home",navWalk:"Walk",navDogs:"Dogs",navSettings:"Settings",walkHeader:"Walk",dogsHeader:"Dogs",dogsSub:"Your personal dog records",dogsSearch:"Search dogs",filterAll:"All",filterKnown:"Known",filterUnknown:"Unknown",settingsHeader:"Settings",settingsSub:"Simple controls for alerts and privacy",language:"Language",homeStartWalk:"Start Walk",walkStartBtn:"Start Walk",walkStopBtn:"Stop Walk",walkAddBtn:"Add / Report",walkCloseDog:"Close dog info",walkReady:"Ready to start",walkInactiveTitle:"Walk not active",walkInactiveBody:"Start a walk to appear on the map and detect nearby dogs.",walkSaved:"Last walk saved",walkDogsThisWalk:"Dogs this walk",walkDogsOnWalk:"Dogs on walk",walkLiveDogs:"Live dogs",walkActive:"Walk active · scanning",walkNearby:"Dogs nearby",walkOnMap:"On map (free)"},es:{navHome:"Inicio",navWalk:"Paseo",navDogs:"Perros",navSettings:"Ajustes",walkHeader:"Paseo",dogsHeader:"Perros",dogsSub:"Tus registros personales de perros",dogsSearch:"Buscar perros",filterAll:"Todos",filterKnown:"Conocidos",filterUnknown:"Desconocidos",settingsHeader:"Ajustes",settingsSub:"Controles simples para alertas y privacidad",language:"Idioma",homeStartWalk:"Iniciar paseo",walkStartBtn:"Iniciar paseo",walkStopBtn:"Terminar paseo",walkAddBtn:"Anadir / Reportar",walkCloseDog:"Cerrar info del perro",walkReady:"Listo para empezar",walkInactiveTitle:"Paseo no activo",walkInactiveBody:"Empieza un paseo para aparecer en el mapa y detectar perros cercanos.",walkSaved:"Ultimo paseo guardado",walkDogsThisWalk:"Perros en este paseo",walkDogsOnWalk:"Perros en paseo",walkLiveDogs:"Perros en vivo",walkActive:"Paseo activo · escaneando",walkNearby:"Perros cerca",walkOnMap:"En mapa (gratis)"}};
+function tr(k){const lg=state.settings.language==="es"?"es":"en";return(I18N[lg]&&I18N[lg][k])||I18N.en[k]||k;}
+function applyLanguage(){
+document.getElementById("navHomeLabel").textContent=tr("navHome");
+document.getElementById("navWalkLabel").textContent=tr("navWalk");
+document.getElementById("navDogsLabel").textContent=tr("navDogs");
+document.getElementById("navSettingsLabel").textContent=tr("navSettings");
+document.getElementById("walkHeaderTitle").textContent=tr("walkHeader");
+document.getElementById("dogsHeaderTitle").textContent=tr("dogsHeader");
+document.getElementById("dogsHeaderSub").textContent=tr("dogsSub");
+document.getElementById("dogsSearch").placeholder=tr("dogsSearch");
+document.getElementById("dogsFilterAll").textContent=tr("filterAll");
+document.getElementById("dogsFilterKnown").textContent=tr("filterKnown");
+document.getElementById("dogsFilterUnknown").textContent=tr("filterUnknown");
+document.getElementById("settingsHeaderTitle").textContent=tr("settingsHeader");
+document.getElementById("settingsHeaderSub").textContent=tr("settingsSub");
+document.getElementById("languageCardTitle").textContent=tr("language");
+document.getElementById("homeStartWalkBtn").querySelector("span:last-child").textContent=tr("homeStartWalk");
+document.getElementById("walkScreenStartBtn").textContent=tr("walkStartBtn");
+document.getElementById("walkCompletedStartBtn").textContent=tr("walkStartBtn");
+document.getElementById("stopWalkBtn").textContent=tr("walkStopBtn");
+document.getElementById("openAddDogBtn").textContent=tr("walkAddBtn");
+document.getElementById("walkDogOverlayClose").textContent=tr("walkCloseDog");
+}
 function knownDogs(){return state.dogs.known;}
 function mergePremiumInsightsAfterWalk(session){
 /* Premium depth layer only; never required for Dogs list visibility. */
@@ -1428,10 +1459,10 @@ destroyWalkLeaflet();
 inactive.classList.remove("hidden");active.classList.add("hidden");
 clearWalkProximityInlineAlert();
 if(chatBtn)chatBtn.classList.add("hidden");
-if(walkLbl)walkLbl.textContent="Ready to start";
+if(walkLbl)walkLbl.textContent=tr("walkReady");
 if(inTitle&&inBody){
-inTitle.textContent="Walk not active";
-inBody.textContent="Start a walk to appear on the map and detect nearby dogs.";
+inTitle.textContent=tr("walkInactiveTitle");
+inBody.textContent=tr("walkInactiveBody");
 }
 if(actionRow)actionRow.classList.remove("action-row--single");
 if(stopBtn)stopBtn.classList.remove("hidden");
@@ -1441,10 +1472,10 @@ return;
 }
 if(reviewMode){
 inactive.classList.add("hidden");active.classList.remove("hidden");
-if(walkLbl)walkLbl.textContent="Last walk saved";
+if(walkLbl)walkLbl.textContent=tr("walkSaved");
 clearWalkProximityInlineAlert();
 if(chatBtn)chatBtn.classList.add("hidden");
-if(liveTitle)liveTitle.textContent="Dogs this walk";
+if(liveTitle)liveTitle.textContent=tr("walkDogsThisWalk");
 if(stopBtn)stopBtn.classList.add("hidden");
 if(addBtn)addBtn.classList.add("hidden");
 if(doneStart){doneStart.classList.remove("hidden");if(actionRow)actionRow.classList.add("action-row--single");}
@@ -1454,7 +1485,7 @@ document.getElementById("walkDistanceStat").textContent=(s.distanceKm||0).toFixe
 const snapLen=(s.liveDogsSnapshot||[]).length;
 document.getElementById("walkNearbyCountStat").textContent=String(snapLen);
 const nLabel=document.getElementById("walkNearbyLabel");
-if(nLabel)nLabel.textContent="Dogs on walk";
+if(nLabel)nLabel.textContent=tr("walkDogsOnWalk");
 const snap=[...(s.liveDogsSnapshot||[])].sort((a,b)=>(a.distance||0)-(b.distance||0));
 document.getElementById("liveDogBar").innerHTML=snap.map(d=>buildLiveDogRowHtml(d,true)).join("")||`<p class="small muted">No dogs recorded on this walk.</p>`;
 renderWalkReviewMap();
@@ -1467,8 +1498,8 @@ if(actionRow)actionRow.classList.remove("action-row--single");
 if(stopBtn)stopBtn.classList.remove("hidden");
 if(addBtn)addBtn.classList.remove("hidden");
 if(doneStart)doneStart.classList.add("hidden");
-if(liveTitle)liveTitle.textContent="Live dogs";
-if(walkLbl)walkLbl.textContent="Walk active · scanning";
+if(liveTitle)liveTitle.textContent=tr("walkLiveDogs");
+if(walkLbl)walkLbl.textContent=tr("walkActive");
 applyLiveWalkDerivedState();
 if(syncLiveSightingsToDogsList())renderDogs();
 const total=state.walk.liveDogs.length;const mapCount=mapDogsForWalk().length;
@@ -1476,7 +1507,7 @@ document.getElementById("walkTimeStat").textContent=formatTime(state.walk.second
 document.getElementById("walkDistanceStat").textContent=state.walk.distanceKm.toFixed(1);
 document.getElementById("walkNearbyCountStat").textContent=String(state.isPremium?total:mapCount);
 const nLabel=document.getElementById("walkNearbyLabel");
-if(nLabel)nLabel.textContent=state.isPremium?"Dogs nearby":"On map (free)";
+if(nLabel)nLabel.textContent=state.isPremium?tr("walkNearby"):tr("walkOnMap");
 if(chatBtn)chatBtn.classList.toggle("hidden",!state.isPremium);
 renderWalkMap();
 const sorted=dogsSortedByDistance();
@@ -1500,7 +1531,7 @@ return `<button class="dog-list-item" data-dog-id="${d.id}" style="text-align:le
 }).join("");
 list.querySelectorAll("[data-dog-id]").forEach(btn=>btn.addEventListener("click",()=>openDogDetail(btn.dataset.dogId)));
 }
-function renderSettings(){if(state.myDog.privacy==="Invisible")state.myDog.privacy="Standard";document.getElementById("settingsDogName").textContent=state.myDog.name||"My Dog";document.getElementById("settingsDogBreed").textContent=state.myDog.breed||"Breed";document.getElementById("toggleVibrations").classList.toggle("on",state.settings.vibrations);document.getElementById("toggleSound").classList.toggle("on",state.settings.sound);document.querySelectorAll("[data-setting-privacy]").forEach(card=>card.classList.toggle("selected",card.dataset.settingPrivacy===state.myDog.privacy));}
+function renderSettings(){if(state.myDog.privacy==="Invisible")state.myDog.privacy="Standard";document.getElementById("settingsDogName").textContent=state.myDog.name||"My Dog";document.getElementById("settingsDogBreed").textContent=state.myDog.breed||"Breed";document.getElementById("toggleVibrations").classList.toggle("on",state.settings.vibrations);document.getElementById("toggleSound").classList.toggle("on",state.settings.sound);document.querySelectorAll("[data-setting-privacy]").forEach(card=>card.classList.toggle("selected",card.dataset.settingPrivacy===state.myDog.privacy));document.querySelectorAll("[data-lang]").forEach(btn=>{const on=btn.dataset.lang===state.settings.language;btn.classList.toggle("selected",on);btn.setAttribute("aria-pressed",on?"true":"false");});applyLanguage();}
 function openSheet(id){document.getElementById("sheetBackdrop").classList.add("active");document.getElementById(id).classList.add("active");}
 function closeSheets(){document.getElementById("sheetBackdrop").classList.remove("active");document.querySelectorAll(".sheet").forEach(s=>s.classList.remove("active"));}
 function openDogDetail(id){state.selectedDogId=id;state.temp.detailDogPending=false;const dog=knownDogs().find(d=>String(d.id)===String(id));if(!dog)return;const lim=isLimitedVisibility(dog);const photoHint=document.getElementById("detailPhotoHint");const rmBtn=document.getElementById("detailDogRemovePhotoBtn");const wrap=document.getElementById("detailDogPhotoWrap");if(lim){photoHint.classList.add("hidden");rmBtn.classList.add("hidden");wrap.classList.add("detail-dog-avatar-tap--disabled");wrap.setAttribute("aria-disabled","true");wrap.tabIndex=-1;}else{photoHint.classList.remove("hidden");wrap.classList.remove("detail-dog-avatar-tap--disabled");wrap.removeAttribute("aria-disabled");wrap.tabIndex=0;}document.getElementById("detailDogName").textContent=dog.name||"Unknown";document.getElementById("detailDogSub").textContent=lim?((dog.profileData&&dog.profileData.limited&&dog.profileData.limited.breed)||dog.breed||"—"):(dog.breed||"No breed added");document.getElementById("detailNameInput").value=dog.name||"";const bIn=document.getElementById("detailBreedInput");const nIn=document.getElementById("detailNotesInput");bIn.readOnly=lim;nIn.readOnly=lim;if(lim){bIn.value=(dog.profileData&&dog.profileData.limited&&dog.profileData.limited.breed)||dog.breed||"—";nIn.value=(dog.profileData&&dog.profileData.limited&&dog.profileData.limited.note)||dog.note||"—";}else{bIn.value=dog.breed||"";nIn.value=dog.note||"";}const lsEl=document.getElementById("detailLastSeen");const scEl=document.getElementById("detailSeenCount");if(state.isPremium){lsEl.textContent=dog.lastSeen||"Today";scEl.textContent=String(dog.seenCount||1);}else{lsEl.textContent="—";scEl.textContent="—";}const detailPhoto=document.getElementById("detailDogPhoto");const detailFallback=document.getElementById("detailDogFallback");if(dog.photo){detailPhoto.src=dog.photo;detailPhoto.classList.remove("hidden");detailFallback.classList.add("hidden");if(!lim)rmBtn.classList.remove("hidden");}else{detailPhoto.classList.add("hidden");detailFallback.innerHTML=walkDetailPinHtml(dog.colour,dog.id);detailFallback.classList.remove("hidden");rmBtn.classList.add("hidden");}document.querySelectorAll("[data-detail-colour]").forEach(btn=>{btn.classList.remove("active","green","orange","red","blue");});const dc=dog.colour;if(dc==="green"||dc==="orange"||dc==="red")document.querySelectorAll("[data-detail-colour]").forEach(btn=>{if(btn.dataset.detailColour===dc)btn.classList.add("active",dc);});refreshDetailOwnerNotesSection(dog);document.getElementById("sheetBackdrop").classList.remove("active");document.getElementById("dogDetailSheet").classList.add("active");}
@@ -1609,6 +1640,7 @@ document.getElementById("toggleVibrations").addEventListener("click",e=>{state.s
 document.getElementById("toggleSound").addEventListener("click",e=>{state.settings.sound=!state.settings.sound;e.currentTarget.classList.toggle("on",state.settings.sound);});
 document.getElementById("resetAlertsBtn").addEventListener("click",()=>{state.settings.vibrations=true;state.settings.sound=true;renderSettings();showBanner("Alerts reset to default");});
 document.querySelectorAll("[data-setting-privacy]").forEach(card=>card.addEventListener("click",()=>{state.myDog.privacy=card.dataset.settingPrivacy;renderSettings();}));
+document.getElementById("languageChoiceGroup")?.addEventListener("click",e=>{const btn=e.target.closest("[data-lang]");if(!btn)return;state.settings.language=btn.dataset.lang==="es"?"es":"en";renderSettings();renderWalk();renderDogs();});
 
 document.getElementById("continueFreeBtn").addEventListener("click",()=>showScreen("home"));
 document.getElementById("unlockPremiumBtn").addEventListener("click",()=>{activatePremiumDemo();showScreen("home");});
@@ -1635,6 +1667,7 @@ renderHome();
 renderDogs();
 renderWalk();
 renderSettings();
+applyLanguage();
 </script>
 </body>
 </html>
