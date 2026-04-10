@@ -357,9 +357,13 @@
             </g>
           </svg>
         </div>
-        <div class="entry-welcome">
+      <div class="entry-welcome">
           <h1 class="wordmark wordmark--hero" aria-label="PawSense"><span class="wm-p">P</span><svg class="wm-paw" aria-hidden="true" focusable="false"><use href="#wordmark-pin"/></svg><span class="wm-w">w</span><span class="wm-sense">Sense</span></h1>
-          <p class="tagline">Know your surroundings and walk with confidence.</p>
+          <p class="tagline" id="entryTagline">Know your surroundings and walk with confidence.</p>
+          <div class="segment-group" id="entryLanguageChoiceGroup" role="group" aria-label="Language" style="margin-top:10px">
+            <button type="button" class="segment-btn selected" data-lang="en" aria-pressed="true">🇬🇧 English</button>
+            <button type="button" class="segment-btn" data-lang="es" aria-pressed="false">🇪🇸 Español</button>
+          </div>
         </div>
       </div>
       <div class="card section-stack">
@@ -465,11 +469,11 @@
     <div class="app-header"><div><h2 id="walkHeaderTitle">Walk</h2><p class="small muted" id="walkStateLabel">Ready to start</p></div></div>
     <div id="walkInactiveState" class="section-stack"><div class="card section-stack" style="padding:22px"><h3 id="walkInactiveTitle">Walk not active</h3><p class="small muted" id="walkInactiveBody">Start a walk to appear on the map and detect nearby dogs.</p><button class="primary-btn" id="walkScreenStartBtn">Start Walk</button></div></div>
     <div id="walkActiveState" class="hidden">
+      <div class="map-card" id="walkMapCard"><div class="map-live" id="walkMap"><div id="walkLeafletPane" class="walk-leaflet-pane" aria-label="Walk map"></div></div></div>
       <div class="walk-stats-slot" id="walkStatsSlot">
         <div class="top-stats" id="walkTopStats"><div class="stat-card"><div class="stat-value" id="walkTimeStat">0:00</div><div class="tiny muted">Time</div></div><div class="stat-card"><div class="stat-value" id="walkDistanceStat">0.0</div><div class="tiny muted">Distance</div></div><div class="stat-card"><div class="stat-value" id="walkNearbyCountStat">0</div><div class="tiny muted" id="walkNearbyLabel">Dogs nearby</div></div></div>
         <div class="walk-stats-slot__alert hidden" id="walkProximityAlertSlot" role="status" aria-live="polite"></div>
       </div>
-      <div class="map-card" id="walkMapCard"><div class="map-live" id="walkMap"><div id="walkLeafletPane" class="walk-leaflet-pane" aria-label="Walk map"></div></div></div>
       <button type="button" class="secondary-btn walk-chat-btn hidden" id="walkLiveChatBtn"><svg class="walk-chat-btn__ico" aria-hidden="true"><use href="#ico-message"/></svg><span><span style="font-weight:600">Live chat with nearby walkers</span><span class="tiny muted" style="display:block;margin-top:4px;font-weight:400">Demo — no messages sent</span></span></button>
       <div class="action-row" id="walkActionRow"><button class="secondary-btn" id="stopWalkBtn">Stop Walk</button><button class="primary-btn" id="openAddDogBtn">Add / Report</button><button type="button" class="primary-btn hidden" id="walkCompletedStartBtn">Start Walk</button></div>
       <div class="walk-footer-section"><div class="card section-stack"><h3 id="liveDogSectionTitle">Live dogs</h3><div class="interaction-list" id="liveDogBar"></div></div></div>
@@ -576,9 +580,13 @@ const WALK_PO_TOOLTIP_M=48;
    state.dogs.known = persistent cumulative known-dogs collection for the Dogs tab (FREE + Premium). Never replace wholesale on walk lifecycle; only add/update rows when the app already saves or syncs a dog.
    state.premiumDogInsights.byDogId = optional Premium-only analytics (walkRefs, encounterHistory, lastSeenAt, etc.). Does not gate list access; merge runs only when isPremium. */
 const state={isPremium:false,user:{name:"",email:""},myDog:{photo:"",name:"",breed:"",age:"",sex:"",ownerName:"",walkerNotes:"",privacy:"Standard"},settings:{vibrations:true,sound:true,language:"en"},walk:{active:false,seconds:0,distanceKm:0,liveDogs:[],interval:null,spawnTimeouts:[],lastAlertAt:0,lastAlertKind:"",leafletMap:null,leafletDogLayer:null,leafletUserGroup:null,leafletViewReady:false,startTime:null,route:[],encounters:[],savedUnknownThisWalk:[],completedSession:null},dogs:{known:[{id:1,name:"Max",breed:"Labrador",note:"Friendly",colour:"green",photo:"",seenCount:4,lastSeen:"Today",known:true,lost:false,visibilityLevel:"standard",ownerNoteSharingEnabled:true,ownerNoteTags:[],ownerShortNote:"Very friendly with people and dogs.",dogStatus:"known",status:"known",profileData:{full:{breed:"Labrador",note:"Friendly"},limited:{breed:"Labrador",note:"—"}}},{id:2,name:"Luna",breed:"Spaniel",note:"Reactive — owner shares full notes on trusted circle",colour:"red",photo:"",seenCount:2,lastSeen:"Yesterday",known:true,lost:false,visibilityLevel:"limited",ownerNoteSharingEnabled:true,ownerNoteTags:["nervous_with_unfamiliar_dogs","may_react_if_approached_too_quickly"],ownerShortNote:"Full notes only to trusted circle.",dogStatus:"known",status:"known",profileData:{full:{breed:"Spaniel",note:"Reactive — owner shares full notes on trusted circle"},limited:{breed:"Spaniel",note:"Reactive (limited view)"}}},{id:3,name:"Unknown",breed:"",note:"",colour:"grey",photo:"",seenCount:1,lastSeen:"Today",known:false,lost:false,visibilityLevel:"limited",dogStatus:"unknown",status:"unknown",matched:false,profileData:{full:{breed:"",note:""},limited:{breed:"—",note:"—"}}}]},premiumDogInsights:{byDogId:{}},lastWalk:{distance:"1.2 km",duration:"18 min",dogsSeen:3,endedAt:null,encounterCount:0,savedUnknownCount:0,routePoints:0},docs:[],interactions:[{name:"Max",colour:"green",breed:"Labrador"},{name:"Luna",colour:"red",breed:"Spaniel"},{name:"Unknown",colour:"grey",breed:""}],temp:{otherDogPhoto:"",ownerPresent:"yes",detailDogPending:false},selectedDogId:null,walkDogOverlay:{isOpen:false,dogId:null,frozen:null}};
-const I18N={en:{navHome:"Home",navWalk:"Walk",navDogs:"Dogs",navSettings:"Settings",walkHeader:"Walk",dogsHeader:"Dogs",dogsSub:"Your personal dog records",dogsSearch:"Search dogs",filterAll:"All",filterKnown:"Known",filterUnknown:"Unknown",settingsHeader:"Settings",settingsSub:"Simple controls for alerts and privacy",language:"Language",homeStartWalk:"Start Walk",walkStartBtn:"Start Walk",walkStopBtn:"Stop Walk",walkAddBtn:"Add / Report",walkCloseDog:"Close dog info",walkReady:"Ready to start",walkInactiveTitle:"Walk not active",walkInactiveBody:"Start a walk to appear on the map and detect nearby dogs.",walkSaved:"Last walk saved",walkDogsThisWalk:"Dogs this walk",walkDogsOnWalk:"Dogs on walk",walkLiveDogs:"Live dogs",walkActive:"Walk active · scanning",walkNearby:"Dogs nearby",walkOnMap:"On map (free)"},es:{navHome:"Inicio",navWalk:"Paseo",navDogs:"Perros",navSettings:"Ajustes",walkHeader:"Paseo",dogsHeader:"Perros",dogsSub:"Tus registros personales de perros",dogsSearch:"Buscar perros",filterAll:"Todos",filterKnown:"Conocidos",filterUnknown:"Desconocidos",settingsHeader:"Ajustes",settingsSub:"Controles simples para alertas y privacidad",language:"Idioma",homeStartWalk:"Iniciar paseo",walkStartBtn:"Iniciar paseo",walkStopBtn:"Terminar paseo",walkAddBtn:"Anadir / Reportar",walkCloseDog:"Cerrar info del perro",walkReady:"Listo para empezar",walkInactiveTitle:"Paseo no activo",walkInactiveBody:"Empieza un paseo para aparecer en el mapa y detectar perros cercanos.",walkSaved:"Ultimo paseo guardado",walkDogsThisWalk:"Perros en este paseo",walkDogsOnWalk:"Perros en paseo",walkLiveDogs:"Perros en vivo",walkActive:"Paseo activo · escaneando",walkNearby:"Perros cerca",walkOnMap:"En mapa (gratis)"}};
+const I18N={en:{navHome:"Home",navWalk:"Walk",navDogs:"Dogs",navSettings:"Settings",language:"Language",entryTagline:"Know your surroundings and walk with confidence.",entryName:"Name",entryNamePh:"Your name",entryEmail:"Email",entrySaveEmail:"We use your email to save your progress. No passwords needed.",entryStart:"Start",onbSetup:"Setup",onbThreeSteps:"Three steps to your dashboard",onbDogProfile:"Your dog profile",onbDogProfileSub:"Add the basic details for your dog. This profile stays simple and factual.",onbPhoto:"Photo",onbTapAdd:"Tap to add",onbGallery:"Gallery or camera",onbDelete:"Delete",onbDogName:"Dog name",onbBreed:"Breed",onbBreedPh:"Start typing breed",onbAge:"Age",onbYears:"Years",onbMonths:"Months",onbSex:"Sex",onbOwnerName:"Owner name (optional)",onbOptional:"Optional",onbWalkerNotes:"Notes for other walkers (optional)",onbWalkerPh:"Leave blank if there’s nothing others should know",continue:"Continue",walkHeader:"Walk",dogsHeader:"Dogs",dogsSub:"Your personal dog records",dogsSearch:"Search dogs",filterAll:"All",filterKnown:"Known",filterUnknown:"Unknown",settingsHeader:"Settings",settingsSub:"Simple controls for alerts and privacy",homeStartWalk:"Start Walk",walkStartBtn:"Start Walk",walkStopBtn:"Stop Walk",walkAddBtn:"Add / Report",walkCloseDog:"Close dog info",walkReady:"Ready to start",walkInactiveTitle:"Walk not active",walkInactiveBody:"Start a walk to appear on the map and detect nearby dogs.",walkSaved:"Last walk saved",walkDogsThisWalk:"Dogs this walk",walkDogsOnWalk:"Dogs on walk",walkLiveDogs:"Live dogs",walkActive:"Walk active · scanning",walkNearby:"Dogs nearby",walkOnMap:"On map (free)",lastWalk:"Last Walk",distance:"Distance",duration:"Duration",dogsSeen:"Dogs seen",recentDogs:"Recent dogs",recentDogsSub:"From your last walks — private to you.",noRecentDogs:"No recent dogs yet. Start a walk to build this list.",premiumUnlock:"Unlock Premium",settingsMyDog:"My Dog",settingsEditDog:"Edit Dog Profile",settingsAlerts:"Alerts",settingsDefaultBehaviour:"Default behaviour",settingsVibrations:"Vibrations",settingsSound:"Sound",settingsResetDefault:"Reset to default",settingsReset:"Reset",settingsMapRange:"Map Range",settingsPrivacy:"Privacy",settingsPremium:"Premium",settingsViewPremium:"View Premium",addDog:"Add Dog",addDogSub:"Register a dog you have just seen during your walk.",ownerPresent:"Owner present",noOwnerPresent:"No owner present",savePrivateDog:"Save as a private dog",createLostDog:"Create a lost dog report",save:"Save",cancel:"Cancel",yourNotes:"Your notes (optional)",dogUpdated:"Dog updated",walkStarted:"Walk started — nearby dogs will appear gradually",walkSavedBanner:"Walk saved · recent dogs updated",alertsReset:"Alerts reset to default",liveChatDemo:"Live chat opens here in production — demo only"},es:{navHome:"Inicio",navWalk:"Paseo",navDogs:"Perros",navSettings:"Ajustes",language:"Idioma",entryTagline:"Conoce tu entorno y pasea con confianza.",entryName:"Nombre",entryNamePh:"Tu nombre",entryEmail:"Correo",entrySaveEmail:"Usamos tu correo para guardar tu progreso. No hace falta contrasena.",entryStart:"Entrar",onbSetup:"Configuracion",onbThreeSteps:"Tres pasos para tu panel",onbDogProfile:"Perfil de tu perro",onbDogProfileSub:"Anade los datos basicos de tu perro. Este perfil se mantiene simple y objetivo.",onbPhoto:"Foto",onbTapAdd:"Toca para anadir",onbGallery:"Galeria o camara",onbDelete:"Eliminar",onbDogName:"Nombre del perro",onbBreed:"Raza",onbBreedPh:"Empieza a escribir la raza",onbAge:"Edad",onbYears:"Anos",onbMonths:"Meses",onbSex:"Sexo",onbOwnerName:"Nombre del dueno (opcional)",onbOptional:"Opcional",onbWalkerNotes:"Notas para otros paseadores (opcional)",onbWalkerPh:"Dejalo vacio si no hay nada que deban saber",continue:"Continuar",walkHeader:"Paseo",dogsHeader:"Perros",dogsSub:"Tus registros personales de perros",dogsSearch:"Buscar perros",filterAll:"Todos",filterKnown:"Conocidos",filterUnknown:"Desconocidos",settingsHeader:"Ajustes",settingsSub:"Controles simples para alertas y privacidad",homeStartWalk:"Iniciar paseo",walkStartBtn:"Iniciar paseo",walkStopBtn:"Terminar paseo",walkAddBtn:"Anadir / Reportar",walkCloseDog:"Cerrar info del perro",walkReady:"Listo para empezar",walkInactiveTitle:"Paseo no activo",walkInactiveBody:"Empieza un paseo para aparecer en el mapa y detectar perros cercanos.",walkSaved:"Ultimo paseo guardado",walkDogsThisWalk:"Perros en este paseo",walkDogsOnWalk:"Perros en paseo",walkLiveDogs:"Perros en vivo",walkActive:"Paseo activo · escaneando",walkNearby:"Perros cerca",walkOnMap:"En mapa (gratis)",lastWalk:"Ultimo paseo",distance:"Distancia",duration:"Duracion",dogsSeen:"Perros vistos",recentDogs:"Perros recientes",recentDogsSub:"De tus ultimos paseos — privado para ti.",noRecentDogs:"Aun no hay perros recientes. Inicia un paseo para crear esta lista.",premiumUnlock:"Desbloquear Premium",settingsMyDog:"Mi perro",settingsEditDog:"Editar perfil del perro",settingsAlerts:"Alertas",settingsDefaultBehaviour:"Comportamiento por defecto",settingsVibrations:"Vibraciones",settingsSound:"Sonido",settingsResetDefault:"Restablecer por defecto",settingsReset:"Reset",settingsMapRange:"Rango del mapa",settingsPrivacy:"Privacidad",settingsPremium:"Premium",settingsViewPremium:"Ver Premium",addDog:"Anadir perro",addDogSub:"Registra un perro que acabas de ver durante el paseo.",ownerPresent:"Dueno presente",noOwnerPresent:"Sin dueno presente",savePrivateDog:"Guardar como perro privado",createLostDog:"Crear aviso de perro perdido",save:"Guardar",cancel:"Cancelar",yourNotes:"Tus notas (opcional)",dogUpdated:"Perro actualizado",walkStarted:"Paseo iniciado — los perros cercanos iran apareciendo",walkSavedBanner:"Paseo guardado · perros recientes actualizados",alertsReset:"Alertas restablecidas",liveChatDemo:"El chat en vivo se abre aqui en produccion — solo demo"}};
 function tr(k){const lg=state.settings.language==="es"?"es":"en";return(I18N[lg]&&I18N[lg][k])||I18N.en[k]||k;}
+function setTxt(sel,val){const el=document.querySelector(sel);if(el)el.textContent=val;}
+function setPh(sel,val){const el=document.querySelector(sel);if(el)el.placeholder=val;}
 function applyLanguage(){
+const lg=state.settings.language==="es"?"es":"en";
+const tt=(en,es)=>lg==="es"?es:en;
 document.getElementById("navHomeLabel").textContent=tr("navHome");
 document.getElementById("navWalkLabel").textContent=tr("navWalk");
 document.getElementById("navDogsLabel").textContent=tr("navDogs");
@@ -593,6 +601,100 @@ document.getElementById("dogsFilterUnknown").textContent=tr("filterUnknown");
 document.getElementById("settingsHeaderTitle").textContent=tr("settingsHeader");
 document.getElementById("settingsHeaderSub").textContent=tr("settingsSub");
 document.getElementById("languageCardTitle").textContent=tr("language");
+setTxt("#entryTagline",tr("entryTagline"));
+document.querySelectorAll("#entryLanguageChoiceGroup [data-lang]")[0].textContent=tt("🇬🇧 English","🇬🇧 Ingles");
+document.querySelectorAll("#entryLanguageChoiceGroup [data-lang]")[1].textContent=tt("🇪🇸 Español","🇪🇸 Espanol");
+document.querySelectorAll("#languageChoiceGroup [data-lang]")[0].textContent=tt("English","Ingles");
+document.querySelectorAll("#languageChoiceGroup [data-lang]")[1].textContent=tt("Español","Espanol");
+setTxt("label[for='entryName']",tr("entryName"));
+setPh("#entryName",tr("entryNamePh"));
+setTxt("label[for='entryEmail']",tr("entryEmail"));
+setPh("#entryEmail",tt("name@email.com","nombre@email.com"));
+setTxt("#startEntryBtn",tr("entryStart"));
+setTxt("#emailHistoryDropdown + p",tr("entrySaveEmail"));
+setTxt("#screen-onboarding-profile .setup-title",tr("onbSetup"));
+setTxt("#screen-onboarding-profile .setup-sub",tr("onbThreeSteps"));
+setTxt(".setup-step-title",tr("onbDogProfile"));
+setTxt(".setup-step-title + p",tr("onbDogProfileSub"));
+setTxt(".photo-field-label",tr("onbPhoto"));
+setTxt("#myDogPhotoPlaceholder .photo-block__title",tr("onbTapAdd"));
+setTxt("#myDogPhotoPlaceholder .photo-block__sub",tr("onbGallery"));
+setTxt("#deleteMyDogPhotoBtn",tr("onbDelete"));
+setTxt("label[for='dogName']",tr("onbDogName"));
+setTxt("label[for='dogBreed']",tr("onbBreed"));
+setPh("#dogBreed",tr("onbBreedPh"));
+setTxt("label[for='dogAgeNum']",tr("onbAge"));
+setTxt("[data-age-unit='years']",tr("onbYears"));
+setTxt("[data-age-unit='months']",tr("onbMonths"));
+setTxt("#dogSexLabel",tr("onbSex"));
+setTxt("label[for='dogOwnerName']",tr("onbOwnerName"));
+setPh("#dogOwnerName",tr("onbOptional"));
+setTxt("label[for='dogWalkerNotes']",tr("onbWalkerNotes"));
+setPh("#dogWalkerNotes",tr("onbWalkerPh"));
+setTxt("#toPrivacyBtn",tr("continue"));
+setTxt("#screen-onboarding-privacy .setup-title",tr("onbSetup"));
+setTxt("#screen-onboarding-privacy .setup-sub",tr("onbThreeSteps"));
+setTxt("#screen-onboarding-privacy .privacy-setup-title",tt("Privacy mode","Modo de privacidad"));
+setTxt("#screen-onboarding-privacy .privacy-setup-copy p:nth-child(1)",tt("While walking, you appear as a nearby presence on the map.","Durante el paseo, apareces como presencia cercana en el mapa."));
+setTxt("#screen-onboarding-privacy .privacy-setup-copy p:nth-child(2)",tt("Your exact location is never shown from a distance.","Tu ubicacion exacta nunca se muestra desde lejos."));
+setTxt("#screen-onboarding-privacy .privacy-setup-copy p:nth-child(3)",tt("Your data stays private.","Tus datos se mantienen privados."));
+setTxt("#screen-onboarding-privacy .privacy-setup-copy p:nth-child(4)",tt("Interactions you log are personal and not shared.","Las interacciones que guardas son personales y no se comparten."));
+setTxt("#screen-onboarding-privacy [data-privacy='Standard'] .privacy-radio-title",tt("Standard","Estandar"));
+setTxt("#screen-onboarding-privacy [data-privacy='Standard'] .privacy-radio-desc",tt("Shares everything you added in your profile, except your dog’s photo.","Comparte todo lo que anadiste en tu perfil, excepto la foto de tu perro."));
+setTxt("#screen-onboarding-privacy [data-privacy='Limited'] .privacy-radio-title",tt("Limited","Limitado"));
+setTxt("#screen-onboarding-privacy [data-privacy='Limited'] .privacy-radio-desc",tt("Appear with minimal visibility.","Aparece con visibilidad minima."));
+setTxt("#finishOnboardingBtn",tr("continue"));
+setTxt("#homeStartWalkBtn span:last-child",tr("homeStartWalk"));
+setTxt("#home .nope",tr("homeStartWalk"));
+setTxt("#editProfileFromHomeBtn",tr("settingsEditDog"));
+setTxt("#openPremiumBtn",tr("premiumUnlock"));
+setTxt("#screen-home .home-below .card.section-stack h3",tr("lastWalk"));
+setTxt("#screen-home .home-below .card.section-stack .meta-row:nth-child(1) .muted",tr("distance"));
+setTxt("#screen-home .home-below .card.section-stack .meta-row:nth-child(2) .muted",tr("duration"));
+setTxt("#screen-home .home-below .card.section-stack .meta-row:nth-child(3) .muted",tr("dogsSeen"));
+setTxt("#screen-home .home-below .card.section-stack + .card.section-stack h3",tr("recentDogs"));
+setTxt("#screen-home .home-below .card.section-stack + .card.section-stack > p",tr("recentDogsSub"));
+setTxt("#settingsHeaderTitle + p",tr("settingsSub"));
+setTxt("#screen-settings .settings-card:nth-child(2) h3",tr("settingsMyDog"));
+setTxt("#editProfileFromSettingsBtn",tr("settingsEditDog"));
+setTxt("#screen-settings .settings-card:nth-child(3) h3",tr("settingsAlerts"));
+setTxt("#screen-settings .settings-card:nth-child(3) .settings-line:nth-child(2) strong",tr("settingsDefaultBehaviour"));
+setTxt("#screen-settings .settings-card:nth-child(3) .settings-line:nth-child(3) strong",tr("settingsVibrations"));
+setTxt("#screen-settings .settings-card:nth-child(3) .settings-line:nth-child(4) strong",tr("settingsSound"));
+setTxt("#screen-settings .settings-card:nth-child(3) .settings-line:nth-child(5) strong",tr("settingsResetDefault"));
+setTxt("#resetAlertsBtn",tr("settingsReset"));
+setTxt("#screen-settings .settings-card:nth-child(4) h3",tr("settingsMapRange"));
+setTxt("#screen-settings .settings-card:nth-child(5) h3",tr("settingsPrivacy"));
+setTxt("#settingsPrivacyChoices [data-setting-privacy='Standard'] .privacy-radio-title",tt("Standard","Estandar"));
+setTxt("#settingsPrivacyChoices [data-setting-privacy='Standard'] .privacy-radio-desc",tt("Shares everything you added in your profile, except your dog’s photo.","Comparte todo lo que anadiste en tu perfil, excepto la foto de tu perro."));
+setTxt("#settingsPrivacyChoices [data-setting-privacy='Limited'] .privacy-radio-title",tt("Limited","Limitado"));
+setTxt("#settingsPrivacyChoices [data-setting-privacy='Limited'] .privacy-radio-desc",tt("Appear with minimal visibility.","Aparece con visibilidad minima."));
+setTxt("#screen-settings .settings-card:nth-child(6) h3",tr("settingsPremium"));
+setTxt("#openPremiumFromSettingsBtn",tr("settingsViewPremium"));
+setTxt("#addDogSheet h2",tr("addDog"));
+setTxt("#addDogSheet h2 + p",tr("addDogSub"));
+setTxt("#ownerPresentChoices [data-owner-present='yes'] h3",tr("ownerPresent"));
+setTxt("#ownerPresentChoices [data-owner-present='yes'] p",tr("savePrivateDog"));
+setTxt("#ownerPresentChoices [data-owner-present='no'] h3",tr("noOwnerPresent"));
+setTxt("#ownerPresentChoices [data-owner-present='no'] p",tr("createLostDog"));
+setTxt("#addDogSheet label[for='otherDogName']",tr("onbDogName"));
+setTxt("#addDogSheet label[for='otherDogBreed']",tr("onbBreed"));
+setTxt("#otherDogSexLabel",tr("onbSex"));
+setTxt("#addDogSheet label[for='otherWalkerName']",tr("onbOwnerName"));
+setTxt("#addDogSheet label[for='otherDogNotes']",tr("yourNotes"));
+setTxt("#saveDogBtn",tr("save"));
+setTxt("#closeSheetBtn",tr("cancel"));
+setTxt("#deleteOtherDogPhotoBtn",tr("onbDelete"));
+setTxt("#detailOwnerNotesBlock h3",tt("From the owner","Del dueno"));
+setTxt("label[for='detailNameInput']",tt("Name","Nombre"));
+setTxt("label[for='detailBreedInput']",tt("Breed","Raza"));
+setTxt("label[for='detailNotesInput']",tr("yourNotes"));
+setTxt("#saveDogDetailBtn",tt("Save changes","Guardar cambios"));
+setTxt("#closeDogDetailBtn",tt("Close","Cerrar"));
+setTxt("#screen-premium .app-header h2",tt("Stay in control","Ten el control"));
+setTxt("#screen-premium .app-header p",tt("Move with confidence. Know what’s around you before it happens.","Muevete con confianza. Sabe lo que te rodea antes de que ocurra."));
+setTxt("#unlockPremiumBtn",tt("Unlock Premium — demo","Desbloquear Premium — demo"));
+setTxt("#continueFreeBtn",tt("Continue with free version","Continuar con version gratis"));
 document.getElementById("homeStartWalkBtn").querySelector("span:last-child").textContent=tr("homeStartWalk");
 document.getElementById("walkScreenStartBtn").textContent=tr("walkStartBtn");
 document.getElementById("walkCompletedStartBtn").textContent=tr("walkStartBtn");
@@ -1320,7 +1422,7 @@ document.getElementById("lastWalkDistance").textContent=state.lastWalk.distance;
 document.getElementById("lastWalkDuration").textContent=state.lastWalk.duration;
 document.getElementById("lastWalkDogsSeen").textContent=state.lastWalk.dogsSeen;
 const interactionsList=document.getElementById("homeInteractionsList");
-if(!state.interactions.length){interactionsList.innerHTML=`<p class="small muted">No recent dogs yet. Start a walk to build this list.</p>`;}
+if(!state.interactions.length){interactionsList.innerHTML=`<p class="small muted">${escapeHtml(tr("noRecentDogs"))}</p>`;}
 else{interactionsList.innerHTML=state.interactions.slice(0,8).map(item=>{
 const lost=item.lost?'<span class="tag-lost">Lost</span>':"";
 const breed=(item.breed||"").trim();
@@ -1386,7 +1488,7 @@ renderWalk();
 },1000);
 document.getElementById("walkStateLabel").textContent="Walk active · scanning";
 showScreen("walk");renderWalk();applyPremiumUI();
-showBanner("Walk started — nearby dogs will appear gradually",3200,"info");
+showBanner(tr("walkStarted"),3200,"info");
 }
 function simulateBeep(strong){
 try{
@@ -1440,7 +1542,7 @@ for(const x of merged){const k=x.name+"|"+x.colour;if(keys.has(k))continue;keys.
 state.interactions=uniq.slice(0,12);
 /* lastWalk + interactions updated for Home; dogs.known remains persistent (only ever mutated via add/sync/save flows). */
 renderWalk();renderHome();
-showBanner("Walk saved · recent dogs updated",2600);
+showBanner(tr("walkSavedBanner"),2600);
 }
 function renderWalk(){
 const inactive=document.getElementById("walkInactiveState");const active=document.getElementById("walkActiveState");
@@ -1487,7 +1589,7 @@ document.getElementById("walkNearbyCountStat").textContent=String(snapLen);
 const nLabel=document.getElementById("walkNearbyLabel");
 if(nLabel)nLabel.textContent=tr("walkDogsOnWalk");
 const snap=[...(s.liveDogsSnapshot||[])].sort((a,b)=>(a.distance||0)-(b.distance||0));
-document.getElementById("liveDogBar").innerHTML=snap.map(d=>buildLiveDogRowHtml(d,true)).join("")||`<p class="small muted">No dogs recorded on this walk.</p>`;
+document.getElementById("liveDogBar").innerHTML=snap.map(d=>buildLiveDogRowHtml(d,true)).join("")||`<p class="small muted">${escapeHtml(state.settings.language==="es"?"No hay perros registrados en este paseo.":"No dogs recorded on this walk.")}</p>`;
 renderWalkReviewMap();
 applyPremiumUI();
 refreshWalkDogOverlayIfOpen();
@@ -1511,7 +1613,7 @@ if(nLabel)nLabel.textContent=state.isPremium?tr("walkNearby"):tr("walkOnMap");
 if(chatBtn)chatBtn.classList.toggle("hidden",!state.isPremium);
 renderWalkMap();
 const sorted=dogsSortedByDistance();
-document.getElementById("liveDogBar").innerHTML=sorted.map(d=>buildLiveDogRowHtml(d,false)).join("")||`<p class="small muted">Scanning… dogs will appear shortly.</p>`;
+document.getElementById("liveDogBar").innerHTML=sorted.map(d=>buildLiveDogRowHtml(d,false)).join("")||`<p class="small muted">${escapeHtml(state.settings.language==="es"?"Escaneando... los perros apareceran enseguida.":"Scanning… dogs will appear shortly.")}</p>`;
 applyPremiumUI();
 refreshWalkDogOverlayIfOpen();
 }
@@ -1537,7 +1639,7 @@ function closeSheets(){document.getElementById("sheetBackdrop").classList.remove
 function openDogDetail(id){state.selectedDogId=id;state.temp.detailDogPending=false;const dog=knownDogs().find(d=>String(d.id)===String(id));if(!dog)return;const lim=isLimitedVisibility(dog);const photoHint=document.getElementById("detailPhotoHint");const rmBtn=document.getElementById("detailDogRemovePhotoBtn");const wrap=document.getElementById("detailDogPhotoWrap");if(lim){photoHint.classList.add("hidden");rmBtn.classList.add("hidden");wrap.classList.add("detail-dog-avatar-tap--disabled");wrap.setAttribute("aria-disabled","true");wrap.tabIndex=-1;}else{photoHint.classList.remove("hidden");wrap.classList.remove("detail-dog-avatar-tap--disabled");wrap.removeAttribute("aria-disabled");wrap.tabIndex=0;}document.getElementById("detailDogName").textContent=dog.name||"Unknown";document.getElementById("detailDogSub").textContent=lim?((dog.profileData&&dog.profileData.limited&&dog.profileData.limited.breed)||dog.breed||"—"):(dog.breed||"No breed added");document.getElementById("detailNameInput").value=dog.name||"";const bIn=document.getElementById("detailBreedInput");const nIn=document.getElementById("detailNotesInput");bIn.readOnly=lim;nIn.readOnly=lim;if(lim){bIn.value=(dog.profileData&&dog.profileData.limited&&dog.profileData.limited.breed)||dog.breed||"—";nIn.value=(dog.profileData&&dog.profileData.limited&&dog.profileData.limited.note)||dog.note||"—";}else{bIn.value=dog.breed||"";nIn.value=dog.note||"";}const lsEl=document.getElementById("detailLastSeen");const scEl=document.getElementById("detailSeenCount");if(state.isPremium){lsEl.textContent=dog.lastSeen||"Today";scEl.textContent=String(dog.seenCount||1);}else{lsEl.textContent="—";scEl.textContent="—";}const detailPhoto=document.getElementById("detailDogPhoto");const detailFallback=document.getElementById("detailDogFallback");if(dog.photo){detailPhoto.src=dog.photo;detailPhoto.classList.remove("hidden");detailFallback.classList.add("hidden");if(!lim)rmBtn.classList.remove("hidden");}else{detailPhoto.classList.add("hidden");detailFallback.innerHTML=walkDetailPinHtml(dog.colour,dog.id);detailFallback.classList.remove("hidden");rmBtn.classList.add("hidden");}document.querySelectorAll("[data-detail-colour]").forEach(btn=>{btn.classList.remove("active","green","orange","red","blue");});const dc=dog.colour;if(dc==="green"||dc==="orange"||dc==="red")document.querySelectorAll("[data-detail-colour]").forEach(btn=>{if(btn.dataset.detailColour===dc)btn.classList.add("active",dc);});refreshDetailOwnerNotesSection(dog);document.getElementById("sheetBackdrop").classList.remove("active");document.getElementById("dogDetailSheet").classList.add("active");}
 function saveDogDetail(){const dog=knownDogs().find(d=>String(d.id)===String(state.selectedDogId));if(!dog)return;const name=document.getElementById("detailNameInput").value.trim()||"Unknown";dog.name=name;dog.known=name!=="Unknown";const lim=isLimitedVisibility(dog);if(!lim){dog.breed=document.getElementById("detailBreedInput").value.trim();dog.note=document.getElementById("detailNotesInput").value.trim();if(state.temp.detailDogPending==="CLEAR")dog.photo="";else if(typeof state.temp.detailDogPending==="string"&&state.temp.detailDogPending)dog.photo=state.temp.detailDogPending;state.temp.detailDogPending=false;if(!dog.profileData)dog.profileData={full:{},limited:{}};dog.profileData.full=Object.assign({},dog.profileData.full||{},{breed:dog.breed,note:dog.note});}if((dog.dogStatus==="unknown"||dog.dogStatus==="seen")&&dog.known){dog.dogStatus="matched";dog.status="matched";dog.matched=true;if(state.walk.active)pushWalkEncounter({liveDogId:null,name:dog.name,known:true,visibilityLevel:dog.visibilityLevel||"standard",colour:dog.colour,breed:(dog.breed||"").trim(),distanceM:null,approxLat:WALK_DEMO_CENTER[0],approxLng:WALK_DEMO_CENTER[1],interaction:"matched",listDogId:dog.id});}
 else{dog.status=dog.dogStatus||(dog.known?"known":"unknown");}
-renderDogs();renderHome();closeSheets();showBanner("Dog updated");}
+renderDogs();renderHome();closeSheets();showBanner(tr("dogUpdated"));}
 function setDetailColour(colour){if(colour!=="green"&&colour!=="orange"&&colour!=="red")return;const dog=knownDogs().find(d=>String(d.id)===String(state.selectedDogId));if(!dog)return;dog.colour=colour;const df=document.getElementById("detailDogFallback");const ph=document.getElementById("detailDogPhoto");if(df&&ph.classList.contains("hidden"))df.innerHTML=walkDetailPinHtml(colour,dog.id);document.querySelectorAll("[data-detail-colour]").forEach(btn=>{btn.classList.remove("active","green","orange","red","blue");if(btn.dataset.detailColour===colour)btn.classList.add("active",colour);});}
 function saveOtherDog(){
 const ownerPresent=state.temp.ownerPresent;
@@ -1638,13 +1740,15 @@ document.getElementById("editProfileFromSettingsBtn").addEventListener("click",(
 document.getElementById("openPremiumFromSettingsBtn").addEventListener("click",()=>showScreen("premium"));
 document.getElementById("toggleVibrations").addEventListener("click",e=>{state.settings.vibrations=!state.settings.vibrations;e.currentTarget.classList.toggle("on",state.settings.vibrations);});
 document.getElementById("toggleSound").addEventListener("click",e=>{state.settings.sound=!state.settings.sound;e.currentTarget.classList.toggle("on",state.settings.sound);});
-document.getElementById("resetAlertsBtn").addEventListener("click",()=>{state.settings.vibrations=true;state.settings.sound=true;renderSettings();showBanner("Alerts reset to default");});
+document.getElementById("resetAlertsBtn").addEventListener("click",()=>{state.settings.vibrations=true;state.settings.sound=true;renderSettings();showBanner(tr("alertsReset"));});
 document.querySelectorAll("[data-setting-privacy]").forEach(card=>card.addEventListener("click",()=>{state.myDog.privacy=card.dataset.settingPrivacy;renderSettings();}));
-document.getElementById("languageChoiceGroup")?.addEventListener("click",e=>{const btn=e.target.closest("[data-lang]");if(!btn)return;state.settings.language=btn.dataset.lang==="es"?"es":"en";renderSettings();renderWalk();renderDogs();});
+function setAppLanguage(lang){state.settings.language=lang==="es"?"es":"en";renderSettings();renderWalk();renderDogs();renderHome();applyLanguage();}
+document.getElementById("languageChoiceGroup")?.addEventListener("click",e=>{const btn=e.target.closest("[data-lang]");if(!btn)return;setAppLanguage(btn.dataset.lang);});
+document.getElementById("entryLanguageChoiceGroup")?.addEventListener("click",e=>{const btn=e.target.closest("[data-lang]");if(!btn)return;setAppLanguage(btn.dataset.lang);});
 
 document.getElementById("continueFreeBtn").addEventListener("click",()=>showScreen("home"));
 document.getElementById("unlockPremiumBtn").addEventListener("click",()=>{activatePremiumDemo();showScreen("home");});
-document.getElementById("walkLiveChatBtn")?.addEventListener("click",()=>showBanner("Live chat opens here in production — demo only",2800,"info"));
+document.getElementById("walkLiveChatBtn")?.addEventListener("click",()=>showBanner(tr("liveChatDemo"),2800,"info"));
 document.getElementById("screen-walk")?.addEventListener("click",e=>{
 const row=e.target.closest("[data-live-dog-id]");
 if(!row||row.dataset.liveOpen!=="1")return;
