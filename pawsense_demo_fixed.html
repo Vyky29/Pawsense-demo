@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PawSense — Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0,0" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous">
+  <style>
+    :root{--bg:#e8ebf4;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--line-strong:#d1d5db;--green:#16a34a;--orange:#d97706;--red:#dc2626;--grey:#94a3b8;--blue:#4f46e5;--accent:#2563eb;--accent-mid:#3b82f6;--accent-soft:rgba(37,99,235,.08);--accent-ring:rgba(37,99,235,.2);--shadow:0 1px 3px rgba(15,23,42,.05);--shadow-md:0 4px 24px rgba(15,23,42,.07);--shadow-lg:0 20px 50px rgba(15,23,42,.1);--radius-sm:14px;--radius-lg:22px;--radius-xl:26px;--ease-out:cubic-bezier(.22,1,.36,1);--space:22px}
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;height:100%;overflow:hidden;overscroll-behavior-y:none;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+    body{display:flex;justify-content:center;align-items:stretch;transition:background .5s var(--ease-out);background-image:radial-gradient(120% 85% at 50% -30%,rgba(99,102,241,.11),transparent 55%),radial-gradient(90% 60% at 100% 0%,rgba(59,130,246,.07),transparent 50%),linear-gradient(180deg,#eef2ff 0%,#e6eaf5 42%,#dfe4f2 100%)}
+    body.premium-active{--bg:#9dc6ff;background-image:radial-gradient(115% 88% at 50% -26%,rgba(29,78,216,.22),transparent 50%),radial-gradient(85% 55% at 100% 0%,rgba(59,130,246,.2),transparent 46%),linear-gradient(180deg,#bfdbfe 0%,#93c5fd 46%,#60a5fa 100%)}
+    .app-shell{width:100%;max-width:420px;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;overflow:hidden;position:relative;transition:opacity .35s var(--ease-out),box-shadow .35s;background:var(--bg);background-image:radial-gradient(120% 85% at 50% -30%,rgba(99,102,241,.11),transparent 55%),radial-gradient(90% 60% at 100% 0%,rgba(59,130,246,.07),transparent 50%),linear-gradient(180deg,#eef2ff 0%,#e6eaf5 42%,#dfe4f2 100%)}
+    body.premium-active .app-shell{background-color:var(--bg);background-image:radial-gradient(115% 88% at 50% -26%,rgba(29,78,216,.22),transparent 50%),radial-gradient(85% 55% at 100% 0%,rgba(59,130,246,.2),transparent 46%),linear-gradient(180deg,#bfdbfe 0%,#93c5fd 46%,#60a5fa 100%)}
+    @media (min-width:421px){
+    html,body{background:#0a0a0a!important;background-image:none!important}
+    body.premium-active{background:#0a0a0a!important;background-image:none!important}
+    .app-shell{box-shadow:0 0 0 1px rgba(255,255,255,.07),0 0 60px rgba(0,0,0,.55)}
+    }
+    .screen{display:none!important;padding:28px 22px max(118px,calc(118px + env(safe-area-inset-bottom,0px)));animation:screenIn .4s var(--ease-out);box-sizing:border-box;height:100%;max-height:100%;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(37,99,235,.25) transparent}
+    .screen::-webkit-scrollbar{width:5px}.screen::-webkit-scrollbar-thumb{background:linear-gradient(180deg,rgba(37,99,235,.3),rgba(37,99,235,.15));border-radius:99px}
+    .screen.active{display:block!important}
+    #screen-entry.active{display:flex!important;flex-direction:column;height:100%;max-height:100%;min-height:0;overflow:hidden!important;overscroll-behavior:none;padding:max(6px,env(safe-area-inset-top,0px)) 18px max(10px,env(safe-area-inset-bottom,0px));box-sizing:border-box;-ms-overflow-style:none;scrollbar-width:none}
+    #screen-entry.active::-webkit-scrollbar{display:none;width:0;height:0}
+    .hidden{display:none!important}
+    @keyframes screenIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    @media (prefers-reduced-motion:reduce){.screen{animation:none}}
+    .card{background:var(--card);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:24px;border:1px solid var(--line);animation:cardIn .5s var(--ease-out) backwards;transition:transform .22s var(--ease-out),box-shadow .22s var(--ease-out),border-color .2s}
+    .card:nth-child(1){animation-delay:.03s}.card:nth-child(2){animation-delay:.06s}.card:nth-child(3){animation-delay:.09s}.card:nth-child(4){animation-delay:.12s}.card:nth-child(5){animation-delay:.15s}
+    @keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    @media (prefers-reduced-motion:reduce){.card{animation:none}}
+    .card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:rgba(15,23,42,.08)}
+    .section-stack{display:grid;gap:var(--space)}#screen-onboarding-profile>.section-stack,#addDogSheet .section-stack{gap:18px} h1,h2,h3,p{margin:0} h1{font-size:26px;font-weight:700;letter-spacing:-.03em} h2{font-size:21px;font-weight:700;letter-spacing:-.03em} h3{font-size:16px;font-weight:600;letter-spacing:-.02em}
+    .muted{color:var(--muted)} .small{font-size:14px;line-height:1.5} .tiny{font-size:12px;line-height:1.4}
+    .app-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:14px}.logo-wrap{width:72px;height:72px;border-radius:20px;background:linear-gradient(145deg,#fff 0%,#f1f5f9 100%);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);border:1px solid rgba(15,23,42,.06);overflow:hidden;flex-shrink:0}
+    .brand-name{font-weight:800;font-size:clamp(22px,6.2vw,28px);letter-spacing:.01em}
+    .wordmark{display:inline-flex;align-items:center;flex-wrap:nowrap;line-height:1;color:var(--text);--wm-pin-fallback:0.95em}
+    .wordmark--hero{font-size:36px;font-weight:800;letter-spacing:-.035em}
+    .wordmark--hero .wm-paw{width:var(--wm-pin-fallback);height:var(--wm-pin-fallback);width:1cap;height:1cap;margin:0 -.1em;flex-shrink:0;display:block;filter:drop-shadow(0 1px 2px rgba(18,32,47,.18))}
+    .wordmark--brand{font-size:clamp(22px,6.2vw,28px);font-weight:800;letter-spacing:.01em}
+    .wordmark--brand .wm-paw{width:var(--wm-pin-fallback);height:var(--wm-pin-fallback);width:1.05cap;height:1.05cap;min-width:1.05cap;min-height:1.05cap;margin:0 -.06em;flex-shrink:0;display:block;filter:drop-shadow(0 1px 2px rgba(18,32,47,.16))}
+    .wm-w{font-weight:inherit}
+    .primary-btn,.secondary-btn,.ghost-btn{border:0;border-radius:14px;font-weight:600;cursor:pointer;font-size:15px;letter-spacing:-.01em;transition:transform .18s var(--ease-out),box-shadow .22s var(--ease-out),background .2s,filter .2s,opacity .2s}
+    .primary-btn{background:linear-gradient(180deg,var(--accent-mid) 0%,var(--accent) 100%);color:#fff;padding:15px 20px;width:100%;box-shadow:0 1px 2px rgba(37,99,235,.15),0 6px 18px rgba(37,99,235,.22)}.primary-btn:hover{transform:translateY(-1px);filter:brightness(1.03);box-shadow:0 4px 16px rgba(37,99,235,.28)}.primary-btn:active{transform:translateY(0)}
+    .secondary-btn{background:#fff;color:var(--text);padding:14px 18px;width:100%;border:1px solid var(--line);box-shadow:none;border-radius:var(--radius-sm)}.secondary-btn:hover{background:#f9fafb;border-color:var(--line-strong)}.ghost-btn{background:transparent;color:var(--muted);padding:10px 0}.ghost-btn:hover{color:var(--accent)}
+    .input-group{display:grid;gap:8px}.input-group label,.input-group .segment-field-label{font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;color:#374151}
+    input,textarea,select{width:100%;border:1px solid var(--line);background:#fff;border-radius:var(--radius-sm);padding:14px 16px;font-size:15px;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s,background .2s}
+    input:hover,textarea:hover,select:hover{border-color:var(--line-strong);background:#fff}
+    input:focus,textarea:focus,select:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px var(--accent-ring)}
+    textarea{resize:vertical;min-height:86px}
+    .photo-block__placeholder{display:grid;gap:6px;justify-items:center;max-width:260px}
+    .photo-block__icon{font-size:32px;line-height:1;opacity:.88}
+    .photo-block__title{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+    .photo-block__sub{font-size:13px;font-weight:400;color:var(--muted);line-height:1.35}
+    .input-group--photo{gap:6px}.input-group--photo .photo-field-label{font-size:13px;font-weight:600;color:#374151}
+    .input-group--photo:has(.photo-block--avatar){justify-items:center}
+    .input-group--photo:has(.photo-block--avatar) .photo-field-label{text-align:center;width:100%}
+    .photo-uploader{display:grid;gap:10px}
+    .photo-uploader--avatar{--photo-avatar-size:160px}
+    .photo-uploader--avatar .photo-actions{max-width:var(--photo-avatar-size);margin:0 auto;width:100%}
+    .photo-uploader--avatar .photo-actions .secondary-btn{padding:6px 14px;font-size:13px;font-weight:500;letter-spacing:.01em;box-shadow:0 1px 1px rgba(15,23,42,.05);min-height:0;line-height:1.25}
+    .photo-block{position:relative;overflow:hidden;transition:border-color .2s,background .2s,box-shadow .2s,outline .2s}
+    .photo-block--avatar{width:var(--photo-avatar-size,160px);height:var(--photo-avatar-size,160px);min-height:0;padding:0;border-radius:999px;margin:0 auto;display:grid;place-items:center;text-align:center;background:var(--accent-soft);border:2px dashed var(--accent);cursor:pointer;box-shadow:0 0 0 1px var(--accent-ring);outline:none}
+    .photo-block--avatar:hover{border-color:var(--accent-mid);background:rgba(37,99,235,.12);box-shadow:0 0 0 1px var(--accent-ring)}
+    .photo-block--avatar:has(img:not(.hidden)){border:3px solid #fff;border-style:solid;box-shadow:var(--shadow-md);outline:1px solid var(--line)}
+    .photo-block--avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:999px;box-shadow:none}
+    .photo-block--avatar .photo-block__placeholder{gap:4px;padding:10px;max-width:124px}
+    .photo-block--avatar .photo-block__icon{font-size:30px;opacity:.9}
+    .photo-block--avatar .photo-block__title{font-size:11px;font-weight:600;line-height:1.25;color:var(--muted);letter-spacing:0}
+    .photo-block--avatar .photo-block__sub{display:none}
+    .photo-actions{display:grid;grid-template-columns:1fr;gap:8px}
+    .photo-actions .secondary-btn{border-radius:999px;padding:12px 18px;font-weight:600;box-shadow:0 1px 2px rgba(15,23,42,.06)}
+    .row{display:flex;gap:10px}.row>*{flex:1}
+    .age-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}.age-row input{width:100%;min-width:0;box-sizing:border-box}
+    .segment-group{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch}.segment-group--triple{grid-template-columns:repeat(3,1fr)}.segment-btn{border:1px solid var(--line);background:#fff;border-radius:var(--radius-sm);padding:13px 10px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s;letter-spacing:-.01em}.segment-group--triple .segment-btn{padding:12px 6px;font-size:13px}.segment-btn:hover{background:#f9fafb;border-color:var(--line-strong)}.segment-btn.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent-ring)}.segment-btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--accent-ring)}
+    .setup-top{display:grid;gap:4px;padding-bottom:4px}
+    .setup-step-title{font-size:24px;font-weight:700;letter-spacing:-.035em;line-height:1.15;margin:4px 0 0;color:var(--text)}
+    .setup-top .setup-title{font-size:22px;font-weight:700;letter-spacing:-.03em;color:var(--text)}
+    .setup-top .setup-sub{color:var(--muted);font-size:14px;line-height:1.45}
+    .setup-steps{display:flex;justify-content:center;align-items:center;gap:10px;padding:12px 0 16px;margin-bottom:4px;border-bottom:1px solid var(--line)}
+    .setup-dot{width:8px;height:8px;border-radius:999px;background:#d1d5db;flex-shrink:0}
+    .setup-dot--active{width:28px;height:8px;border-radius:999px;background:var(--accent)}
+    .privacy-setup-title{font-size:28px;font-weight:700;letter-spacing:-.035em;line-height:1.12;margin:10px 0 0;color:var(--text)}
+    .privacy-setup-copy{display:grid;gap:12px;margin:14px 0 22px}
+    .privacy-setup-copy p{margin:0;font-size:14px;line-height:1.55;color:var(--muted)}
+    .privacy-radio-list{display:grid;gap:10px}
+    button.privacy-radio-card{display:flex;gap:14px;align-items:flex-start;text-align:left;width:100%;padding:16px 16px;border:1px solid var(--line);border-radius:16px;background:#fff;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s;font:inherit;-webkit-tap-highlight-color:transparent}
+    button.privacy-radio-card:hover{background:#fafafa;border-color:var(--line-strong)}
+    button.privacy-radio-card.selected{background:#f3f4f6;border-color:#e5e7eb;box-shadow:none}
+    button.privacy-radio-card:focus-visible{outline:none;box-shadow:0 0 0 3px var(--accent-ring)}
+    .privacy-radio-dot{flex-shrink:0;width:22px;height:22px;border-radius:999px;border:2px solid #cbd5e1;background:#fff;box-sizing:border-box;margin-top:2px;transition:border-color .2s,background .2s,box-shadow .2s}
+    button.privacy-radio-card.selected .privacy-radio-dot{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 4px #fff}
+    .privacy-radio-body{display:flex;flex-direction:column;gap:4px;align-items:flex-start;min-width:0}
+    .privacy-radio-title{font-weight:700;font-size:16px;color:var(--text);letter-spacing:-.02em}
+    .privacy-radio-desc{font-size:13px;font-weight:400;color:var(--muted);line-height:1.45}
+    #screen-onboarding-privacy .privacy-setup-stack{gap:0}
+    #screen-onboarding-privacy .privacy-setup-stack .primary-btn{margin-top:22px}
+    .settings-card .privacy-radio-list{gap:8px}
+    .settings-card button.privacy-radio-card{padding:14px 14px}
+    .choice-grid{display:grid;gap:10px}.choice-card{border:1px solid var(--line);border-radius:16px;padding:16px;background:#fff;cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s}.choice-card:hover{border-color:var(--line-strong);box-shadow:0 2px 12px rgba(15,23,42,.05)}.choice-card.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent-ring)}
+    .my-dog-card{text-align:center;padding-top:22px}.dog-avatar{width:108px;height:108px;border-radius:999px;margin:0 auto 12px;background:linear-gradient(145deg,#f1f5f9,#e2e8f0);display:grid;place-items:center;overflow:hidden;border:3px solid #fff;box-shadow:var(--shadow-md);outline:1px solid var(--line)}
+    #screen-home .home-stack{gap:0}
+    #screen-home .app-header{display:flex;justify-content:center;align-items:center;margin-bottom:4px;padding-bottom:12px}
+    #screen-home .app-header .brand{justify-content:center}
+    #screen-home .home-focus{display:grid;gap:10px}
+    #screen-home .home-focus .card{padding:14px 16px}
+    #screen-home .home-focus .my-dog-card{padding-top:10px}
+    #screen-home .home-focus .dog-avatar{width:176px;height:176px;max-width:min(176px,72vw);max-height:min(176px,72vw);margin-bottom:8px;border-width:3px}
+    #screen-home .home-focus .dog-avatar .nav-ico{width:min(64px,18vw);height:min(64px,18vw);font-size:min(56px,15vw)}
+    #screen-home .home-focus .my-dog-card h2{font-size:20px;letter-spacing:-.02em}
+    #screen-home .home-focus #editProfileFromHomeBtn{margin-top:8px!important;padding:6px 16px!important;font-size:12px!important;font-weight:600!important;width:auto!important;min-height:0!important;display:inline-block;border-radius:999px}
+    #screen-home .home-profile-meta{display:grid;gap:3px;margin:6px 0 0;width:100%;text-align:center;justify-items:center}
+    #screen-home .home-profile-line{margin:0;font-size:14px;font-weight:600;color:var(--text);line-height:1.45;max-width:100%;word-break:break-word}
+    #screen-home .home-focus .home-walk-card{padding:0!important;overflow:hidden;border:0;min-height:0}
+    #screen-home .home-focus .home-walk-card .primary-btn{width:100%;min-height:clamp(50px,11vw,68px);margin:0;border:0;border-radius:var(--radius-lg);padding:14px 18px;font-size:clamp(16px,4.4vw,19px);font-weight:800;box-shadow:0 1px 2px rgba(37,99,235,.12),0 6px 22px rgba(37,99,235,.24);display:flex;align-items:center;justify-content:center;gap:10px;flex-shrink:0;box-sizing:border-box}
+    #screen-home .home-focus .home-walk-card .home-start-walk-ico.material-symbols-rounded{font-family:"Material Symbols Rounded";font-weight:normal;font-style:normal;font-size:clamp(22px,5.5vw,28px);width:1em;height:1em;line-height:1;display:block;font-variation-settings:"FILL" 1,"wght" 600,"GRAD" 0,"opsz" 24;-webkit-font-smoothing:antialiased;color:inherit}
+    #screen-home .home-below{display:grid;gap:var(--space);margin-top:12px;padding-top:14px;border-top:1px solid var(--line)}
+    #screen-home .brand-name.wordmark--home-header{font-size:clamp(28px,7.5vw,36px);font-weight:800;letter-spacing:-.03em;line-height:1;align-items:center}
+    #screen-home .brand-name.wordmark--home-header .wm-p{margin-right:-.03em}
+    #screen-home .brand-name.wordmark--home-header .wm-paw{width:.88em;height:.88em;min-width:.88em;min-height:.88em;margin:0 -.06em 0 -.09em;flex-shrink:0;display:block;filter:drop-shadow(0 1px 2px rgba(18,32,47,.18))}
+    #screen-home .brand-name.wordmark--home-header .wm-w{margin:0 -.02em 0 -.05em}
+    #screen-home .brand-name.wordmark--home-header .wm-sense{letter-spacing:-.03em;margin-left:-.02em}
+    .dog-avatar img{width:100%;height:100%;object-fit:cover}.meta-list{display:grid;gap:10px}.meta-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #eef2f5}.meta-row:last-child{border-bottom:0}
+    .map-card{background:#fff;border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--shadow);border:1px solid rgba(15,23,42,.07);transition:box-shadow .35s var(--ease-out),border-color .35s}
+    body.premium-active .map-card.map-card--premium{box-shadow:var(--shadow-md),0 0 0 1px rgba(37,99,235,.14);border-color:rgba(37,99,235,.12)}
+    .map-live{height:min(568px,calc(58vh + 48px));min-height:min(436px,calc(48vh + 48px));position:relative;background:#e8eef8;overflow:hidden;border-radius:inherit}.walk-leaflet-pane{position:absolute;inset:0;z-index:1;border-radius:inherit}.walk-leaflet-pane .leaflet-container{width:100%;height:100%;background:#e8eef8;border-radius:inherit;font-family:inherit}.walk-leaflet-pane .leaflet-control-attribution{font-size:9px;max-width:calc(100% - 48px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    @keyframes walkPinSpin{to{transform:rotate(360deg)}}
+    @keyframes walkPinWave{0%{transform:scale(.35);opacity:.5}70%{opacity:.12}100%{transform:scale(1.15);opacity:0}}
+    .walk-mmap-pin{position:relative;box-sizing:border-box;border-radius:50%;display:grid;place-items:center;flex-shrink:0;box-shadow:0 2px 10px rgba(15,23,42,.2)}
+    .walk-mmap-pin--dog{width:36px;height:36px;background:var(--pin-col,#94a3b8);border:2px solid rgba(255,255,255,.55)}
+    .walk-mmap-pin--user{width:42px;height:42px;background:linear-gradient(155deg,#27272a,#0a0a0a);border:2px solid rgba(255,255,255,.88);box-shadow:0 2px 14px rgba(15,23,42,.45)}
+    .walk-mmap-pin__sym{font-family:"Material Symbols Rounded";font-weight:normal;font-style:normal;font-size:20px;width:1em;height:1em;line-height:1;color:#fff;display:block;font-variation-settings:"FILL" 1,"wght" 600,"GRAD" 0,"opsz" 24;-webkit-font-smoothing:antialiased;position:relative;z-index:4;text-shadow:0 1px 2px rgba(0,0,0,.18)}
+    .walk-mmap-pin--user .walk-mmap-pin__sym{font-size:22px;text-shadow:0 1px 3px rgba(0,0,0,.22)}
+    .walk-mmap-pin-orbit-wrap{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:1}
+    .walk-mmap-pin__orbit{width:48px;height:48px;position:relative;animation:walkPinSpin 5.8s linear infinite}
+    .walk-mmap-pin__orbit i{position:absolute;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 0 0 1px rgba(0,0,0,.1)}
+    .walk-mmap-pin__orbit i:nth-child(1){top:0;left:50%;transform:translate(-50%,-40%)}
+    .walk-mmap-pin__orbit i:nth-child(2){top:50%;right:0;transform:translate(40%,-50%)}
+    .walk-mmap-pin__orbit i:nth-child(3){bottom:0;left:50%;transform:translate(-50%,40%)}
+    .walk-mmap-pin__orbit i:nth-child(4){top:50%;left:0;transform:translate(-40%,-50%)}
+    .walk-mmap-pin__waves{position:absolute;inset:-3px;border-radius:50%;pointer-events:none;overflow:hidden;z-index:0}
+    .walk-mmap-pin__waves::before,.walk-mmap-pin__waves::after{content:"";position:absolute;left:50%;top:50%;width:100%;height:100%;margin:-50% 0 0 -50%;border-radius:50%;border:1px solid rgba(255,255,255,.42);animation:walkPinWave 2.8s ease-out infinite}
+    .walk-mmap-pin__waves::after{animation-delay:1.4s;border-color:rgba(255,255,255,.28)}
+    .walk-mmap-pin--user .walk-mmap-pin__waves::before,.walk-mmap-pin--user .walk-mmap-pin__waves::after{border-color:rgba(255,255,255,.22)}
+    .dog-circle-icon.walk-mmap-pin-list{overflow:visible;background:transparent;border:none;padding:0;display:grid;place-items:center;width:46px;height:46px}
+    .walk-mmap-pin-list .walk-mmap-pin--dog{width:40px;height:40px}
+    .walk-mmap-pin-list .walk-mmap-pin__sym{font-size:22px}
+    .walk-mmap-pin-list .walk-mmap-pin__orbit{width:52px;height:52px}
+    .detail-dog-fallback .walk-mmap-pin--dog{width:56px;height:56px}
+    .detail-dog-fallback .walk-mmap-pin__sym{font-size:30px}
+    .detail-dog-fallback .walk-mmap-pin__orbit{width:72px;height:72px}
+    .detail-dog-fallback .walk-mmap-pin__orbit i{width:6px;height:6px}
+    @media (prefers-reduced-motion:reduce){.walk-mmap-pin__orbit,.walk-mmap-pin__waves::before,.walk-mmap-pin__waves::after{animation:none!important}}
+    @keyframes mapMarkerPulse{0%,100%{opacity:1}50%{opacity:.72}}
+    .map-canvas .marker-pulse{animation:mapMarkerPulse 2.2s ease-in-out infinite}
+    @media (prefers-reduced-motion:reduce){.map-canvas .marker-pulse{animation:none}}
+    .walk-stats-slot{display:grid;margin-bottom:10px;min-height:0}.walk-stats-slot .top-stats{margin-bottom:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.walk-stats-slot .top-stats,.walk-stats-slot .walk-stats-slot__alert{grid-area:1/1;align-self:stretch}.walk-stats-slot__alert{display:flex;align-items:center;justify-content:center;text-align:center;padding:10px 12px;border-radius:14px;font-size:12px;font-weight:600;line-height:1.35;box-shadow:var(--shadow);border:1px solid rgba(15,23,42,.06);box-sizing:border-box}.walk-proximity-alert--strong{background:linear-gradient(145deg,#991b1b 0%,#7f1d1d 100%);color:#fff;border-color:rgba(255,255,255,.1)}.walk-proximity-alert--info{background:linear-gradient(145deg,#3730a3 0%,#1e3a5f 100%);color:#fff;border-color:rgba(255,255,255,.1)}.walk-stats-slot .stat-card{background:#fff;border-radius:14px;padding:6px 8px;box-shadow:var(--shadow);text-align:center;border:1px solid rgba(15,23,42,.06)}.walk-stats-slot .stat-value{font-size:15px;font-weight:700;margin-bottom:1px;line-height:1.2;letter-spacing:-.02em;color:var(--text)}.walk-stats-slot .stat-card .tiny{font-size:11px;line-height:1.25}
+    .interaction-list{display:grid;gap:10px}.interaction-item,.dog-list-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid rgba(15,23,42,.06);border-radius:16px;padding:13px 14px;box-shadow:0 1px 3px rgba(15,23,42,.04);transition:box-shadow .2s,border-color .2s}.interaction-item:hover,.dog-list-item:hover{box-shadow:var(--shadow-md);border-color:rgba(15,23,42,.08)}
+    .interaction-item--noopen{pointer-events:none}
+    #walkDogOverlay{position:fixed;inset:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;z-index:55;box-sizing:border-box;padding:max(10px,env(safe-area-inset-top)) 22px max(14px,env(safe-area-inset-bottom));background:rgba(15,23,42,.48);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);align-items:center;justify-content:center}
+    #walkDogOverlay:not(.hidden){display:flex!important;flex-direction:column}
+    .dog-dot{width:18px;height:18px;border-radius:999px}.dog-circle-icon{width:46px;height:46px;border-radius:999px;background:linear-gradient(145deg,#f8fafc,#e8eef4);border:1px solid rgba(15,23,42,.06);display:grid;place-items:center;overflow:hidden;flex:0 0 auto}
+    .dog-circle-icon img{width:100%;height:100%;object-fit:cover}.premium-card{background:linear-gradient(145deg,#172554 0%,#1d4ed8 46%,#1e40af 100%);color:#fff;border-radius:var(--radius-xl);padding:20px;box-shadow:var(--shadow-lg),0 0 0 1px rgba(255,255,255,.08) inset;border:1px solid rgba(191,219,254,.22)}
+    .bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:420px;background:rgba(255,255,255,.78);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-top:1px solid rgba(15,23,42,.08);display:grid;grid-template-columns:repeat(4,1fr);padding:10px 10px max(18px,env(safe-area-inset-bottom));z-index:40;box-shadow:0 -8px 32px rgba(15,23,42,.06)}
+    .nav-item{border:0;background:transparent;display:grid;gap:4px;justify-items:center;color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.02em;cursor:pointer;padding:8px 6px;border-radius:12px;transition:color .2s,background .2s,transform .15s}.nav-item:active{transform:scale(.96)}.nav-item.active{color:var(--accent);background:var(--accent-soft)}
+    .nav-ico{width:24px;height:24px;display:block;color:var(--muted);transition:transform .2s var(--ease-out),color .2s;font-size:24px;line-height:1}.nav-item.active .nav-ico{color:var(--accent);transform:translateY(-1px)}
+    .nav-ico.material-symbols-rounded{font-family:"Material Symbols Rounded";font-weight:normal;font-style:normal;font-size:24px;width:24px;height:24px;line-height:1;letter-spacing:normal;text-transform:none;display:block;white-space:nowrap;word-wrap:normal;direction:ltr;-webkit-font-smoothing:antialiased;font-variation-settings:"FILL" 0,"wght" 500,"GRAD" 0,"opsz" 24}.nav-item.active .nav-ico.material-symbols-rounded{font-variation-settings:"FILL" 1,"wght" 600,"GRAD" 0,"opsz" 24}
+    .photo-block__icon-svg{display:block;width:32px;height:32px;color:var(--muted)}.photo-block--avatar .photo-block__icon-svg{width:30px;height:30px}
+    .home-dog-fallback{display:grid;place-items:center}.home-dog-fallback .nav-ico{width:40px;height:40px;font-size:40px;color:#94a3b8}
+    .detail-dog-fallback{display:grid;place-items:center;min-height:72px}.detail-dog-fallback .ico-dog-svg{width:26px;height:26px}
+    .premium-lock{display:inline-flex;align-items:center;gap:8px;padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.12);font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px;border:1px solid rgba(255,255,255,.1)}
+    .premium-lock__ico{width:14px;height:14px;flex-shrink:0;color:rgba(255,255,255,.92)}
+    .walk-chat-btn{display:flex;align-items:flex-start;gap:12px;text-align:left}.walk-chat-btn__ico{flex-shrink:0;width:22px;height:22px;color:var(--accent);margin-top:1px}
+    .pill__start{display:inline-flex;align-items:center;gap:8px;min-width:0}
+    .pill__ico{width:16px;height:16px;flex-shrink:0;color:var(--muted)}.pill__ico--end{margin-left:auto}
+    .ico-dog-svg{display:block;flex-shrink:0}.dog-circle-icon .ico-dog-svg{width:28px;height:28px}
+    .action-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.action-row.action-row--single{grid-template-columns:1fr}
+    .walk-footer-section{margin-top:14px;display:grid;gap:12px}
+    .search-wrap{display:grid;gap:12px;margin-bottom:14px}.filter-row{display:flex;gap:8px;overflow-x:auto}.filter-btn{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer;transition:background .2s,border-color .2s,color .2s}.filter-btn:hover{border-color:var(--line-strong)}.filter-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);font-weight:600}
+    .settings-list{display:grid;gap:14px}.settings-card{background:#fff;border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow);border:1px solid rgba(15,23,42,.06)}.settings-line{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.settings-line:last-child{border-bottom:0}
+    .toggle{width:48px;height:30px;border-radius:999px;background:#e2e8f0;position:relative;cursor:pointer;transition:background .2s}.toggle:after{content:'';width:24px;height:24px;border-radius:999px;background:#fff;position:absolute;top:3px;left:3px;box-shadow:0 2px 8px rgba(15,23,42,.12);transition:left .22s var(--ease-out),transform .2s}.toggle.on{background:linear-gradient(180deg,var(--accent-mid),var(--accent))}.toggle.on:after{left:21px}
+    .sheet-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(4px);display:none;z-index:80}.sheet-backdrop.active{display:block}
+    .sheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:420px;background:#fff;border-radius:24px 24px 0 0;padding:12px 20px max(24px,env(safe-area-inset-bottom));box-shadow:0 -12px 48px rgba(15,23,42,.18);display:none;z-index:90;max-height:88vh;overflow-y:auto;border:1px solid rgba(15,23,42,.06);border-bottom:0}.sheet.active{display:block}
+    .sheet.sheet--dog-detail-full{position:fixed;left:50%;top:0;bottom:0;transform:translateX(-50%);width:100%;max-width:420px;max-height:none;min-height:100%;min-height:100dvh;height:100%;height:100dvh;margin:0;padding:0;border-radius:0;border:0;box-shadow:none;z-index:100;flex-direction:column;overflow:hidden;background:#fff;display:none!important;box-sizing:border-box}
+    .sheet.sheet--dog-detail-full.active{display:flex!important;flex-direction:column}
+    .dog-detail-full__scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
+    .dog-detail-full__pad{padding:max(16px,env(safe-area-inset-top)) 20px 24px}
+    .dog-detail-full__footer{flex-shrink:0;padding:12px 20px max(20px,env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#fff}
+    .dog-detail-full__footer .dog-detail-full__close-btn{width:100%;margin:0;box-sizing:border-box}
+    .sheet-handle{width:40px;height:5px;border-radius:999px;background:#e2e8f0;margin:0 auto 16px}.choice-pills{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.choice-pills--colours{grid-template-columns:repeat(4,1fr)}.choice-pills--detail-colours{grid-template-columns:repeat(3,1fr)}.detail-dog-avatar-tap{cursor:pointer;border-radius:999px;outline:none}.detail-dog-avatar-tap:focus-visible{box-shadow:0 0 0 3px rgba(37,99,235,.35)}.detail-dog-avatar-tap--disabled{cursor:default;pointer-events:none}
+    .choice-pill{border:1px solid var(--line);background:#fff;border-radius:16px;padding:12px 10px;text-align:center;font-weight:700;cursor:pointer}.choice-pill.active.green{background:rgba(22,163,74,.12);border-color:rgba(22,163,74,.42)}.choice-pill.active.orange{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.4)}.choice-pill.active.red{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.4)}.choice-pill.active.blue{background:rgba(37,99,235,.12);border-color:rgba(37,99,235,.42)}
+    .inline-note{margin-top:12px;padding:14px;border-radius:14px;background:var(--accent-soft);border:1px solid rgba(37,99,235,.18);color:#475569;font-size:13px;line-height:1.45}.breeds-dropdown{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-md);display:none;margin-top:4px}.breeds-dropdown.active{display:block}.breed-option{padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--line);transition:background .15s}.breed-option:hover{background:#f8fafc}.breed-option:last-child{border-bottom:0}
+    .banner{position:fixed;top:max(14px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:384px;background:linear-gradient(145deg,#1e293b 0%,#0f172a 100%);color:#fff;padding:16px 18px;border-radius:16px;box-shadow:var(--shadow-lg);border:1px solid rgba(255,255,255,.08);z-index:120;display:none;font-size:14px;font-weight:500;line-height:1.45;transition:opacity .25s var(--ease-out),transform .25s var(--ease-out)}.banner.active{display:block;animation:bannerSlide .35s var(--ease-out)}
+    .banner--alert-strong{background:linear-gradient(145deg,#991b1b 0%,#7f1d1d 100%);border:1px solid rgba(255,255,255,.1)}
+    .banner--info{background:linear-gradient(145deg,#3730a3 0%,#1e3a5f 100%);border:1px solid rgba(255,255,255,.1)}
+    @keyframes bannerSlide{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+    @media (prefers-reduced-motion:reduce){.banner.active{animation:none}}
+    .premium-floating{display:none;position:fixed;top:14px;right:max(16px,calc(50% - 200px));z-index:115;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#e0f2fe;background:linear-gradient(145deg,#1e40af 0%,#2563eb 100%);padding:7px 14px;border-radius:999px;border:1px solid rgba(147,197,253,.45);box-shadow:0 4px 22px rgba(37,99,235,.38)}
+    body.premium-active .premium-floating{display:flex}
+    body:has(#screen-entry.active) .premium-floating{display:none!important}
+    .tag-lost{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:rgba(239,68,68,.12);color:#b91c1c;padding:3px 8px;border-radius:6px;margin-left:8px;vertical-align:middle}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:999px;background:#f1f5f9;font-size:12px;font-weight:500;color:var(--muted);margin-right:8px;margin-bottom:8px;border:1px solid var(--line);max-width:100%;box-sizing:border-box}
+    .pill--locked{opacity:.75;justify-content:space-between;width:100%;margin-right:0;padding-right:10px}.smart-tag{font-size:10px;font-weight:600;color:#b45309;background:rgba(245,158,11,.15);padding:2px 8px;border-radius:6px;margin-left:6px}
+    body:not(.premium-active) #screen-home .premium-card{max-height:min(240px,40vh);overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch}
+    .walk-chat-btn{margin-top:12px;width:100%}
+    #screen-entry{background:radial-gradient(120% 85% at 50% -30%,rgba(99,102,241,.11),transparent 55%),radial-gradient(90% 60% at 100% 0%,rgba(59,130,246,.07),transparent 50%),linear-gradient(180deg,#eef2ff 0%,#e6eaf5 42%,#dfe4f2 100%)}
+    #screen-entry .entry-inner{flex:1;max-width:380px;width:100%;margin:0 auto;padding:12px 0;display:flex;flex-direction:column;align-items:stretch;min-height:0;overflow:visible;justify-content:center;gap:clamp(20px,5vh,32px)}
+    #screen-entry .entry-email-group{position:relative;z-index:2}
+    #screen-entry .entry-email-dropdown{position:absolute;left:0;right:0;top:100%;margin-top:2px;z-index:30;max-height:min(160px,28vh);overflow-y:auto;-webkit-overflow-scrolling:touch;box-shadow:0 12px 32px rgba(16,24,40,.12)}
+    .entry-hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:clamp(12px,3vh,20px);margin-bottom:0;flex:0 0 auto;justify-content:center;padding-top:0}
+    .entry-logo-wrap{width:clamp(124px,34vw,160px);height:clamp(124px,34vw,160px);aspect-ratio:1;border-radius:50%;background:linear-gradient(155deg,#fff 0%,#f8fafc 50%,#eef2ff 100%);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0;position:relative;flex-shrink:0;box-shadow:0 0 0 1px rgba(15,23,42,.06),0 0 0 6px rgba(37,99,235,.1),0 24px 48px rgba(37,99,235,.14),inset 0 1px 0 rgba(255,255,255,.95)}
+    .entry-logo-wrap::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.65);mix-blend-mode:soft-light}
+    .entry-logo-wrap svg{display:block;width:92%;height:92%;max-width:100%;max-height:100%;flex-shrink:0;position:relative;z-index:1;margin:0;overflow:visible;align-self:center}
+    @keyframes entryPop{from{opacity:0;transform:scale(.9) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    @keyframes entryFade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .entry-hero .entry-logo-wrap{animation:entryPop .75s cubic-bezier(.22,1,.36,1) both}
+    .entry-welcome{animation:entryFade .8s .1s cubic-bezier(.22,1,.36,1) both}
+    @media (prefers-reduced-motion:reduce){.entry-hero .entry-logo-wrap,.entry-welcome{animation:none}}
+    .logo-wrap svg{display:block;width:100%;height:100%}
+    .entry-welcome{display:flex;flex-direction:column;align-items:center;align-self:center;gap:clamp(8px,2vh,14px);width:min(100%,340px);max-width:340px;margin-inline:auto;flex-shrink:0;text-align:center;box-sizing:border-box;padding:0 12px}
+    #screen-entry .entry-welcome h1.wordmark{display:inline-flex;align-items:center;justify-content:center;flex-wrap:nowrap;white-space:nowrap;margin:0;width:auto;max-width:100%}
+    #screen-entry .entry-welcome .tagline{width:100%;margin:0;padding:0;box-sizing:border-box;text-align:center;text-wrap:balance;white-space:normal;line-height:1.4}
+    #screen-entry .wordmark--hero{font-size:clamp(32px,9vw,42px);font-weight:800;letter-spacing:-.03em;line-height:1;align-items:center}
+    #screen-entry .wordmark--hero .wm-paw{width:.88em;height:.88em;min-width:.88em;min-height:.88em;margin:0 -.06em 0 -.09em;flex-shrink:0;vertical-align:middle}
+    #screen-entry .wordmark--hero .wm-p{margin-right:-.03em}
+    #screen-entry .wordmark--hero .wm-w{margin:0 -.02em 0 -.05em}
+    #screen-entry .wordmark--hero .wm-sense{letter-spacing:-.03em;margin-left:-.02em}
+    .entry-welcome .tagline{font-size:clamp(11px,3.25vw,16px);line-height:1.35;color:var(--muted);font-weight:500;opacity:.9;letter-spacing:-.015em}
+    #screen-entry .card{width:100%;margin-top:0;flex-shrink:0;padding:16px 18px;border-radius:var(--radius-lg);box-shadow:var(--shadow-md)}
+    #screen-entry .section-stack{gap:10px}
+    #screen-entry .input-group{gap:5px}
+    #screen-entry input{padding:11px 12px;font-size:15px;border-radius:12px}
+    #screen-entry .primary-btn{padding:13px 16px;border-radius:14px}
+    #screen-entry .tiny{line-height:1.3;font-size:11px}
+    @media (max-width:360px){
+    .entry-welcome .tagline{font-size:clamp(10px,2.9vw,15px)}
+    }
+    @media (max-height:700px){
+    #screen-entry .entry-inner{gap:clamp(14px,3vh,22px);padding:8px 0}
+    .entry-logo-wrap{width:clamp(102px,30vw,132px);height:clamp(102px,30vw,132px)}
+    .entry-logo-wrap svg{width:88%;height:88%}
+    #screen-entry .wordmark--hero{font-size:clamp(28px,8vw,36px)}
+    .entry-hero{gap:10px}
+    #screen-entry .card{padding:14px 16px}
+    }
+  </style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute;overflow:hidden">
+  <!-- Perfil: cola, cuerpo, cabeza/hocico, oreja, cuatro patas. currentColor = tinte. -->
+  <symbol id="ico-dog-profile" viewBox="0 0 24 24">
+    <g fill="currentColor">
+      <path d="M3.35 11.4c-.55-1.85.15-3.85 1.95-4.65.45.75.55 1.65.35 2.45-.2.85-.65 1.55-1.2 2-.35.35-.75.55-1.1.2z"/>
+      <path d="M6.9 7.35c.35-1.9 2.15-3.25 4.05-2.95 1-.95 2.55-1.15 3.75-.45 1.05-.55 2.35-.35 3.15.55.45.5.6 1.2.45 1.85-.1.55-.45 1-.9 1.25v.15c-.05 1.75-.35 3.45-.45 5.2v3.45h-1.85v-3.15c0-.75-.25-1.45-.85-1.95h-1.55c-.6.5-.9 1.2-.9 1.95v3.15H8.9v-3.45c-.1-1.75-.4-3.45-.45-5.2-.5-.2-.95-.65-1.1-1.2-.2-.75.05-1.55.55-2.1z"/>
+      <ellipse cx="18.35" cy="9.15" rx="2.65" ry="2.45"/>
+      <ellipse cx="21.05" cy="9.85" rx="1.85" ry="1.35"/>
+      <ellipse cx="17.25" cy="6.85" rx="1.05" ry="1.65" transform="rotate(-12 17.25 6.85)"/>
+      <rect x="15.15" y="13.85" width="1.65" height="6.35" rx=".55"/>
+      <rect x="12.75" y="14.05" width="1.55" height="6.15" rx=".55"/>
+      <rect x="8.35" y="14" width="1.65" height="6.25" rx=".55"/>
+      <rect x="6.05" y="14.2" width="1.5" height="6.05" rx=".55"/>
+    </g>
+  </symbol>
+  <symbol id="wordmark-pin" viewBox="-20 -20 40 40">
+    <circle r="16" fill="currentColor"/>
+    <g fill="#fff" transform="scale(0.82)">
+      <circle cx="-6.2" cy="-5.2" r="3.1"/>
+      <circle cx="0" cy="-9" r="3"/>
+      <circle cx="6.2" cy="-5.2" r="3.1"/>
+      <circle cx="0" cy="3" r="6.2"/>
+    </g>
+  </symbol>
+  <symbol id="ico-paw" viewBox="0 0 24 24"><use href="#ico-dog-profile" width="24" height="24"/></symbol>
+  <symbol id="ico-camera" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3"/></g></symbol>
+  <symbol id="ico-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M7 11V8a5 5 0 0 1 10 0v3"/></g></symbol>
+  <symbol id="ico-message" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></g></symbol>
+  <symbol id="ico-signal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16.5a7 7 0 0 1 14 0"/><path d="M8.5 12.5a4 4 0 0 1 7 0"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></g></symbol>
+  <symbol id="ico-sparkle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.2 5.1L18 9.3l-4.8 1.2L12 15.6l-1.2-5.1L6 9.3l4.8-1.2L12 3Z"/></g></symbol>
+</svg>
+<div class="app-shell">
+  <div class="banner" id="banner"></div>
+  <div class="premium-floating" id="premiumFloating" aria-hidden="true">Premium</div>
+  <section class="screen active" id="screen-entry">
+    <div class="entry-inner">
+      <div class="entry-hero">
+        <div class="entry-logo-wrap" aria-hidden="true">
+          <svg viewBox="-14 -14 268 268" aria-hidden="true">
+            <defs>
+              <clipPath id="logoClipEntry"><circle cx="120" cy="110" r="90"/></clipPath>
+            </defs>
+            <g transform="translate(0,10)">
+            <g transform="translate(120 110) scale(1.3) translate(-120 -110)">
+            <circle cx="120" cy="110" r="90" fill="#eef3f7"/>
+            <g clip-path="url(#logoClipEntry)">
+              <rect x="20" y="20" width="200" height="180" fill="#eef3f7"/>
+              <g fill="#dde6ee">
+                <rect x="42" y="44" width="30" height="20" rx="4"/>
+                <rect x="92" y="34" width="35" height="24" rx="5"/>
+                <rect x="142" y="122" width="42" height="28" rx="6"/>
+                <rect x="72" y="152" width="30" height="20" rx="4"/>
+              </g>
+              <circle cx="66" cy="158" r="44" fill="#d8e4f8"/>
+              <circle cx="172" cy="62" r="36" fill="#dcefff"/>
+              <g stroke="#c7d2de" stroke-width="12" stroke-linecap="round" fill="none">
+                <path d="M-8 92 C28 84 62 98 93 91 C120 85 144 66 179 70 C206 74 224 88 248 82"/>
+                <path d="M-12 152 C22 144 53 156 86 149 C120 144 146 128 181 132 C210 136 228 128 248 124"/>
+                <path d="M60 -10 C67 28 50 58 57 96 C63 126 77 153 73 192 C71 212 64 227 66 247"/>
+                <path d="M126 -10 C132 24 116 52 121 89 C126 121 145 149 142 183 C140 208 133 225 135 246"/>
+                <path d="M194 -10 C202 22 188 52 192 89 C196 124 211 149 208 184 C206 211 200 228 203 248"/>
+              </g>
+              <g stroke="white" stroke-width="5" stroke-linecap="round" fill="none">
+                <path d="M-8 92 C28 84 62 98 93 91 C120 85 144 66 179 70 C206 74 224 88 248 82"/>
+                <path d="M-12 152 C22 144 53 156 86 149 C120 144 146 128 181 132 C210 136 228 128 248 124"/>
+                <path d="M60 -10 C67 28 50 58 57 96 C63 126 77 153 73 192 C71 212 64 227 66 247"/>
+                <path d="M126 -10 C132 24 116 52 121 89 C126 121 145 149 142 183 C140 208 133 225 135 246"/>
+                <path d="M194 -10 C202 22 188 52 192 89 C196 124 211 149 208 184 C206 211 200 228 203 248"/>
+              </g>
+              <g transform="translate(120 110) scale(1.1) translate(-120 -110)">
+              <g transform="translate(3.33 0.67)">
+                <g transform="translate(78 82)">
+                  <circle r="19" fill="#16a34a" stroke="white" stroke-width="4.5"/>
+                  <circle cx="-6.9" cy="-5.8" r="3.45" fill="white"/>
+                  <circle cx="0" cy="-10" r="3.35" fill="white"/>
+                  <circle cx="6.9" cy="-5.8" r="3.45" fill="white"/>
+                  <circle cx="0" cy="3.35" r="6.9" fill="white"/>
+                </g>
+                <g transform="translate(155 92)">
+                  <circle r="19" fill="#d97706" stroke="white" stroke-width="4.5"/>
+                  <circle cx="-6.9" cy="-5.8" r="3.45" fill="white"/>
+                  <circle cx="0" cy="-10" r="3.35" fill="white"/>
+                  <circle cx="6.9" cy="-5.8" r="3.45" fill="white"/>
+                  <circle cx="0" cy="3.35" r="6.9" fill="white"/>
+                </g>
+                <g transform="translate(117 154)">
+                  <circle r="19" fill="#dc2626" stroke="white" stroke-width="4.5"/>
+                  <circle cx="-6.9" cy="-5.8" r="3.45" fill="white"/>
+                  <circle cx="0" cy="-10" r="3.35" fill="white"/>
+                  <circle cx="6.9" cy="-5.8" r="3.45" fill="white"/>
+                  <circle cx="0" cy="3.35" r="6.9" fill="white"/>
+                </g>
+              </g>
+              </g>
+            </g>
+            </g>
+            </g>
+          </svg>
+        </div>
+        <div class="entry-welcome">
+          <h1 class="wordmark wordmark--hero" aria-label="PawSense"><span class="wm-p">P</span><svg class="wm-paw" aria-hidden="true" focusable="false"><use href="#wordmark-pin"/></svg><span class="wm-w">w</span><span class="wm-sense">Sense</span></h1>
+          <p class="tagline">Know your surroundings and walk with confidence.</p>
+        </div>
+      </div>
+      <div class="card section-stack">
+        <div class="input-group"><label for="entryName">Name</label><input id="entryName" placeholder="Your name" autocomplete="name"></div>
+        <div class="input-group entry-email-group"><label for="entryEmail">Email</label><input id="entryEmail" type="email" name="email" placeholder="name@email.com" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false"><div class="breeds-dropdown entry-email-dropdown" id="emailHistoryDropdown" aria-label="Saved emails on this device"></div><p class="tiny muted">We use your email to save your progress. No passwords needed.</p></div>
+        <button class="primary-btn" id="startEntryBtn">Start</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-onboarding-profile">
+    <div class="setup-top">
+      <h1 class="setup-title">Setup</h1>
+      <p class="setup-sub">Three steps to your dashboard</p>
+    </div>
+    <div class="setup-steps" role="presentation" aria-hidden="true">
+      <span class="setup-dot setup-dot--active"></span>
+      <span class="setup-dot"></span>
+      <span class="setup-dot"></span>
+    </div>
+    <div class="section-stack">
+      <h2 class="setup-step-title">Your dog profile</h2>
+      <p class="small muted" style="margin:-4px 0 4px">Add the basic details for your dog. This profile stays simple and factual.</p>
+      <div class="photo-uploader photo-uploader--avatar">
+        <div class="input-group input-group--photo">
+          <span class="photo-field-label">Photo</span>
+          <div class="photo-block photo-block--avatar" id="myDogPhotoBlock"><img id="myDogPhotoPreview" class="hidden" alt="Dog photo preview"><div id="myDogPhotoPlaceholder" class="photo-block__placeholder"><svg class="photo-block__icon-svg" aria-hidden="true"><use href="#ico-camera"/></svg><span class="photo-block__title">Tap to add</span><span class="photo-block__sub">Gallery or camera</span></div></div>
+        </div>
+        <input type="file" accept="image/*" id="myDogPhotoInput" class="hidden">
+        <div class="photo-actions"><button type="button" class="secondary-btn" id="deleteMyDogPhotoBtn">Delete</button></div>
+      </div>
+      <div class="input-group"><label for="dogName">Dog name</label><input id="dogName" placeholder="Arlo"></div>
+      <div class="input-group"><label for="dogBreed">Breed</label><input id="dogBreed" placeholder="Start typing breed" autocomplete="off"><div class="breeds-dropdown" id="breedSuggestions"></div></div>
+      <div class="input-group">
+        <label for="dogAgeNum">Age</label>
+        <div class="age-row">
+          <input id="dogAgeNum" type="number" inputmode="numeric" min="0" max="99" step="1" placeholder="3" autocomplete="off">
+          <div class="segment-group" id="dogAgeUnitGroup" role="group" aria-label="Years or months">
+            <button type="button" class="segment-btn selected" data-age-unit="years" aria-pressed="true">Years</button>
+            <button type="button" class="segment-btn" data-age-unit="months" aria-pressed="false">Months</button>
+          </div>
+        </div>
+      </div>
+      <div class="input-group">
+        <span class="segment-field-label" id="dogSexLabel">Sex</span>
+        <div class="segment-group" id="dogSexGroup" role="group" aria-labelledby="dogSexLabel">
+          <button type="button" class="segment-btn" data-sex="Male" aria-pressed="false">Male</button>
+          <button type="button" class="segment-btn" data-sex="Female" aria-pressed="false">Female</button>
+        </div>
+      </div>
+      <div class="input-group"><label for="dogOwnerName">Owner name (optional)</label><input id="dogOwnerName" placeholder="Optional"></div>
+      <div class="input-group">
+        <label for="dogWalkerNotes">Notes for other walkers <span class="tiny muted">(optional)</span></label>
+        <p class="small muted" style="margin:0 0 8px;line-height:1.45">Only if you want to warn or guide people nearby. Examples: <em>“Nervous on leash — please ask first”</em>, <em>“Don’t approach from behind”</em>, <em>“OK with calm dogs only”</em>, <em>“Very friendly once introduced”</em>.</p>
+        <textarea id="dogWalkerNotes" rows="3" maxlength="400" placeholder="Leave blank if there’s nothing others should know"></textarea>
+      </div>
+      <button class="primary-btn" id="toPrivacyBtn">Continue</button>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-onboarding-privacy">
+    <div class="setup-top">
+      <h1 class="setup-title">Setup</h1>
+      <p class="setup-sub">Three steps to your dashboard</p>
+    </div>
+    <div class="setup-steps" role="presentation" aria-hidden="true">
+      <span class="setup-dot"></span>
+      <span class="setup-dot setup-dot--active"></span>
+      <span class="setup-dot"></span>
+    </div>
+    <div class="section-stack privacy-setup-stack">
+      <h2 class="privacy-setup-title">Privacy mode</h2>
+      <div class="privacy-setup-copy">
+        <p>While walking, you appear as a nearby presence on the map.</p>
+        <p>Your exact location is never shown from a distance.</p>
+        <p>Your data stays private.</p>
+        <p>Interactions you log are personal and not shared.</p>
+      </div>
+      <div class="privacy-radio-list" role="radiogroup" aria-label="Privacy mode">
+        <button type="button" class="privacy-radio-card selected" data-privacy="Standard"><span class="privacy-radio-dot" aria-hidden="true"></span><span class="privacy-radio-body"><span class="privacy-radio-title">Standard</span><span class="privacy-radio-desc">Shares everything you added in your profile, except your dog’s photo.</span></span></button>
+        <button type="button" class="privacy-radio-card" data-privacy="Limited"><span class="privacy-radio-dot" aria-hidden="true"></span><span class="privacy-radio-body"><span class="privacy-radio-title">Limited</span><span class="privacy-radio-desc">Appear with minimal visibility.</span></span></button>
+      </div>
+      <button type="button" class="primary-btn" id="finishOnboardingBtn">Continue</button>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-home">
+    <div class="app-header"><div class="brand"><div class="logo-wrap"><svg viewBox="-14 -14 268 268" aria-hidden="true" style="overflow:visible"><g transform="translate(120 110) scale(1.3) translate(-120 -110)"><circle cx="120" cy="110" r="90" fill="#eef3f7"/><g fill="#dde6ee"><rect x="42" y="44" width="30" height="20" rx="4"/><rect x="92" y="34" width="35" height="24" rx="5"/><rect x="142" y="122" width="42" height="28" rx="6"/><rect x="72" y="152" width="30" height="20" rx="4"/></g><circle cx="66" cy="158" r="44" fill="#d8e4f8"/><circle cx="172" cy="62" r="36" fill="#dcefff"/><g stroke="#c7d2de" stroke-width="12" stroke-linecap="round" fill="none"><path d="M-8 92 C28 84 62 98 93 91 C120 85 144 66 179 70 C206 74 224 88 248 82"/><path d="M-12 152 C22 144 53 156 86 149 C120 144 146 128 181 132 C210 136 228 128 248 124"/><path d="M60 -10 C67 28 50 58 57 96 C63 126 77 153 73 192 C71 212 64 227 66 247"/><path d="M126 -10 C132 24 116 52 121 89 C126 121 145 149 142 183 C140 208 133 225 135 246"/><path d="M194 -10 C202 22 188 52 192 89 C196 124 211 149 208 184 C206 211 200 228 203 248"/></g><g stroke="white" stroke-width="5" stroke-linecap="round" fill="none"><path d="M-8 92 C28 84 62 98 93 91 C120 85 144 66 179 70 C206 74 224 88 248 82"/><path d="M-12 152 C22 144 53 156 86 149 C120 144 146 128 181 132 C210 136 228 128 248 124"/><path d="M60 -10 C67 28 50 58 57 96 C63 126 77 153 73 192 C71 212 64 227 66 247"/><path d="M126 -10 C132 24 116 52 121 89 C126 121 145 149 142 183 C140 208 133 225 135 246"/><path d="M194 -10 C202 22 188 52 192 89 C196 124 211 149 208 184 C206 211 200 228 203 248"/></g><g><g transform="translate(78 82)"><circle r="17" fill="#16a34a" stroke="white" stroke-width="4"/><circle cx="-6.2" cy="-5.2" r="3.1" fill="white"/><circle cx="0" cy="-9" r="3" fill="white"/><circle cx="6.2" cy="-5.2" r="3.1" fill="white"/><circle cx="0" cy="3" r="6.2" fill="white"/></g><g transform="translate(155 92)"><circle r="17" fill="#f59e0b" stroke="white" stroke-width="4"/><circle cx="-6.2" cy="-5.2" r="3.1" fill="white"/><circle cx="0" cy="-9" r="3" fill="white"/><circle cx="6.2" cy="-5.2" r="3.1" fill="white"/><circle cx="0" cy="3" r="6.2" fill="white"/></g><g transform="translate(117 154)"><circle r="17" fill="#ef4444" stroke="white" stroke-width="4"/><circle cx="-6.2" cy="-5.2" r="3.1" fill="white"/><circle cx="0" cy="-9" r="3" fill="white"/><circle cx="6.2" cy="-5.2" r="3.1" fill="white"/><circle cx="0" cy="3" r="6.2" fill="white"/></g></g></g></svg></div><div class="brand-name wordmark wordmark--hero wordmark--home-header" aria-label="PawSense"><span class="wm-p">P</span><svg class="wm-paw" aria-hidden="true" focusable="false"><use href="#wordmark-pin"/></svg><span class="wm-w">w</span><span class="wm-sense">Sense</span></div></div></div>
+    <div class="section-stack home-stack">
+      <div class="home-focus">
+        <div class="card my-dog-card"><div class="dog-avatar"><img id="homeDogImage" class="hidden" alt="My dog"><div id="homeDogFallback" class="home-dog-fallback" aria-hidden="true"><span class="nav-ico material-symbols-rounded">pets</span></div></div><h2 id="homeDogName">My Dog</h2><div class="home-profile-meta" id="homeProfileMeta"><p class="home-profile-line" id="homeDogBreed">—</p><p class="home-profile-line" id="homeDogAge">—</p><p class="home-profile-line" id="homeDogSex">—</p><p class="home-profile-line" id="homeDogPrivacy">Standard</p></div><button class="secondary-btn" id="editProfileFromHomeBtn">Edit Profile</button></div>
+        <div class="card home-walk-card"><button type="button" class="primary-btn" id="homeStartWalkBtn"><span class="material-symbols-rounded home-start-walk-ico" aria-hidden="true">directions_walk</span><span>Start Walk</span></button></div>
+      </div>
+      <div class="home-below">
+        <div class="card section-stack"><h3>Last Walk</h3><div class="meta-list"><div class="meta-row"><span class="muted">Distance</span><strong id="lastWalkDistance">0.0 km</strong></div><div class="meta-row"><span class="muted">Duration</span><strong id="lastWalkDuration">0 min</strong></div><div class="meta-row"><span class="muted">Dogs seen</span><strong id="lastWalkDogsSeen">0</strong></div></div></div>
+        <div class="card section-stack"><h3>Recent dogs</h3><p class="small muted" style="margin-top:4px">From your last walks — private to you.</p><div class="interaction-list" id="homeInteractionsList"><p class="small muted">No recent dogs yet.</p></div></div>
+        <div class="premium-card"><div class="premium-lock"><svg class="premium-lock__ico" aria-hidden="true"><use href="#ico-lock"/></svg>Premium</div><h3 style="margin-bottom:8px">Extended Dog Visibility</h3><p class="small" style="opacity:.9;margin-bottom:14px">See more dogs and details beyond your current range.</p><button class="secondary-btn" id="openPremiumBtn" style="background:#fff;color:#0f172a;font-weight:600">Unlock Premium</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-walk">
+    <div class="app-header"><div><h2>Walk</h2><p class="small muted" id="walkStateLabel">Ready to start</p></div></div>
+    <div id="walkInactiveState" class="section-stack"><div class="card section-stack" style="padding:22px"><h3 id="walkInactiveTitle">Walk not active</h3><p class="small muted" id="walkInactiveBody">Start a walk to appear on the map and detect nearby dogs.</p><button class="primary-btn" id="walkScreenStartBtn">Start Walk</button></div></div>
+    <div id="walkActiveState" class="hidden">
+      <div class="walk-stats-slot" id="walkStatsSlot">
+        <div class="top-stats" id="walkTopStats"><div class="stat-card"><div class="stat-value" id="walkTimeStat">0:00</div><div class="tiny muted">Time</div></div><div class="stat-card"><div class="stat-value" id="walkDistanceStat">0.0</div><div class="tiny muted">Distance</div></div><div class="stat-card"><div class="stat-value" id="walkNearbyCountStat">0</div><div class="tiny muted" id="walkNearbyLabel">Dogs nearby</div></div></div>
+        <div class="walk-stats-slot__alert hidden" id="walkProximityAlertSlot" role="status" aria-live="polite"></div>
+      </div>
+      <div class="map-card" id="walkMapCard"><div class="map-live" id="walkMap"><div id="walkLeafletPane" class="walk-leaflet-pane" aria-label="Walk map"></div></div></div>
+      <button type="button" class="secondary-btn walk-chat-btn hidden" id="walkLiveChatBtn"><svg class="walk-chat-btn__ico" aria-hidden="true"><use href="#ico-message"/></svg><span><span style="font-weight:600">Live chat with nearby walkers</span><span class="tiny muted" style="display:block;margin-top:4px;font-weight:400">Demo — no messages sent</span></span></button>
+      <div class="action-row" id="walkActionRow"><button class="secondary-btn" id="stopWalkBtn">Stop Walk</button><button class="primary-btn" id="openAddDogBtn">Add / Report</button><button type="button" class="primary-btn hidden" id="walkCompletedStartBtn">Start Walk</button></div>
+      <div class="walk-footer-section"><div class="card section-stack"><h3 id="liveDogSectionTitle">Live dogs</h3><div class="interaction-list" id="liveDogBar"></div></div></div>
+    </div>
+    <div id="walkDogOverlay" class="hidden" aria-hidden="true"><div class="card section-stack" style="width:100%;max-height:min(88dvh,640px);overflow-y:auto;margin:auto"><div id="walkDogOverlayBody"></div><button type="button" class="primary-btn" id="walkDogOverlayClose">Close dog info</button></div></div>
+  </section>
+
+  <section class="screen" id="screen-dogs">
+    <div class="app-header"><div><h2>Dogs</h2><p class="small muted">Your personal dog records</p></div></div>
+    <div class="search-wrap"><input id="dogsSearch" placeholder="Search dogs"><div class="filter-row"><button class="filter-btn active" data-filter="all">All</button><button class="filter-btn" data-filter="known">Known</button><button class="filter-btn" data-filter="unknown">Unknown</button></div></div>
+    <div class="section-stack" id="dogsList"></div>
+  </section>
+
+  <section class="screen" id="screen-settings">
+    <div class="app-header"><div><h2>Settings</h2><p class="small muted">Simple controls for alerts and privacy</p></div></div>
+    <div class="settings-list">
+      <div class="settings-card"><h3 style="margin-bottom:8px">My Dog</h3><div class="settings-line"><div><strong id="settingsDogName">My Dog</strong><div class="tiny muted" id="settingsDogBreed">Breed</div></div><button class="ghost-btn" id="editProfileFromSettingsBtn">Edit Dog Profile</button></div></div>
+      <div class="settings-card"><h3 style="margin-bottom:8px">Alerts</h3><div class="settings-line"><div><strong>Default behaviour</strong><div class="tiny muted">On a walk: only red (high-attention) triggers the on-screen alert, vibration and sound. Orange and green are map/list cues only — no automatic pop-up by colour.</div></div></div><div class="settings-line"><div><strong>Vibrations</strong></div><div class="toggle on" id="toggleVibrations"></div></div><div class="settings-line"><div><strong>Sound</strong></div><div class="toggle on" id="toggleSound"></div></div><div class="settings-line"><div><strong>Reset to default</strong></div><button class="ghost-btn" id="resetAlertsBtn">Reset</button></div></div>
+      <div class="settings-card"><h3 style="margin-bottom:8px">Map Range</h3><div class="choice-grid"><div class="choice-card selected"><h3>Standard</h3><p class="small muted" style="margin-top:6px">Default range</p></div><div class="choice-card"><h3>Extended <span style="font-weight:500;color:var(--muted)">(Premium)</span></h3><p class="small muted" style="margin-top:6px">Available in Premium</p></div></div></div>
+      <div class="settings-card"><h3 style="margin-bottom:10px">Privacy</h3><div class="privacy-radio-list" id="settingsPrivacyChoices" role="radiogroup" aria-label="Privacy"><button type="button" class="privacy-radio-card selected" data-setting-privacy="Standard"><span class="privacy-radio-dot" aria-hidden="true"></span><span class="privacy-radio-body"><span class="privacy-radio-title">Standard</span><span class="privacy-radio-desc">Shares everything you added in your profile, except your dog’s photo.</span></span></button><button type="button" class="privacy-radio-card" data-setting-privacy="Limited"><span class="privacy-radio-dot" aria-hidden="true"></span><span class="privacy-radio-body"><span class="privacy-radio-title">Limited</span><span class="privacy-radio-desc">Appear with minimal visibility.</span></span></button></div></div>
+      <div class="settings-card"><h3 style="margin-bottom:8px">Premium</h3><p class="small muted" style="margin-bottom:12px">Unlock more control and live features.</p><div class="section-stack" id="settingsPremiumPills"><div class="pill pill--locked"><span class="pill__start"><svg class="pill__ico" aria-hidden="true"><use href="#ico-message"/></svg>Live chat</span><svg class="pill__ico pill__ico--end" aria-hidden="true"><use href="#ico-lock"/></svg></div><div class="pill pill--locked"><span class="pill__start"><svg class="pill__ico" aria-hidden="true"><use href="#ico-signal"/></svg>Extended range</span><svg class="pill__ico pill__ico--end" aria-hidden="true"><use href="#ico-lock"/></svg></div><div class="pill pill--locked"><span class="pill__start"><svg class="pill__ico" aria-hidden="true"><use href="#ico-sparkle"/></svg>Smart avoidance</span><svg class="pill__ico pill__ico--end" aria-hidden="true"><use href="#ico-lock"/></svg></div></div><button class="primary-btn" style="margin-top:14px" id="openPremiumFromSettingsBtn">View Premium</button></div>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-premium">
+    <div class="app-header"><div><h2>Stay in control</h2><p class="small muted">Move with confidence. Know what’s around you before it happens.</p></div></div>
+    <div class="section-stack">
+      <div class="premium-card"><div class="premium-lock">Early access</div><h2 style="margin-bottom:8px">£0.99 one-time</h2><p class="small" style="opacity:.9">One payment. Lifetime access.</p></div>
+      <div class="card section-stack"><h3>Smart Avoidance</h3><p class="small muted">Avoid difficult situations before they happen. See priority dogs earlier and stay one step ahead.</p></div>
+      <div class="card section-stack"><h3>Early Visibility</h3><p class="small muted">See dogs before they see you. Get more time to react and make better route decisions.</p></div>
+      <div class="card section-stack"><h3>Live Chat</h3><p class="small muted">Coordinate with nearby dog owners without sharing phone numbers.</p></div>
+      <div class="card section-stack"><h3>Priority Alerts</h3><p class="small muted">Be first to know what matters, including local lost dog alerts and priority events.</p></div>
+      <div class="card"><p class="small muted"><strong style="color:var(--text)">No noise. No social feed.</strong> Just useful tools.</p></div>
+      <button class="primary-btn" id="unlockPremiumBtn">Unlock Premium — demo</button><button class="ghost-btn" id="continueFreeBtn">Continue with free version</button>
+    </div>
+  </section>
+
+  <nav class="bottom-nav hidden" id="bottomNav">
+    <button class="nav-item active" data-screen="home"><span class="nav-ico material-symbols-rounded" aria-hidden="true">home</span><span>Home</span></button>
+    <button class="nav-item" data-screen="walk"><span class="nav-ico material-symbols-rounded" aria-hidden="true">directions_walk</span><span>Walk</span></button>
+    <button class="nav-item" data-screen="dogs"><span class="nav-ico material-symbols-rounded" aria-hidden="true">pets</span><span>Dogs</span></button>
+    <button class="nav-item" data-screen="settings"><span class="nav-ico material-symbols-rounded" aria-hidden="true">settings</span><span>Settings</span></button>
+  </nav>
+
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+
+  <div class="sheet" id="addDogSheet">
+    <div class="sheet-handle"></div>
+    <div class="section-stack">
+      <div><h2>Add Dog</h2><p class="small muted">Register a dog you have just seen during your walk.</p></div>
+      <div class="photo-uploader photo-uploader--avatar">
+        <div class="input-group input-group--photo">
+          <span class="photo-field-label">Photo</span>
+          <div class="photo-block photo-block--avatar" id="otherDogPhotoBlock"><img id="otherDogPhotoPreview" class="hidden" alt="Other dog photo preview"><div id="otherDogPhotoPlaceholder" class="photo-block__placeholder"><svg class="photo-block__icon-svg" aria-hidden="true"><use href="#ico-camera"/></svg><span class="photo-block__title">Tap to add</span><span class="photo-block__sub">Gallery or camera</span></div></div>
+        </div>
+        <input type="file" accept="image/*" id="otherDogPhotoInput" class="hidden">
+        <div class="photo-actions"><button type="button" class="secondary-btn" id="deleteOtherDogPhotoBtn">Delete</button></div>
+      </div>
+      <div class="inline-note">Please make sure you have the owner’s permission before taking a photo.</div>
+      <div class="input-group"><label for="otherDogName">Dog name</label><input id="otherDogName" placeholder="Unknown or name if known"></div>
+      <div class="input-group"><label for="otherDogBreed">Breed</label><input id="otherDogBreed" placeholder="Optional"></div>
+      <div class="row"><div class="input-group"><span class="segment-field-label" id="otherDogSexLabel">Sex (optional)</span><div class="segment-group segment-group--triple" id="otherDogSexGroup" role="group" aria-labelledby="otherDogSexLabel"><button type="button" class="segment-btn selected" data-other-sex="unknown" aria-pressed="true">Unknown</button><button type="button" class="segment-btn" data-other-sex="Male" aria-pressed="false">Male</button><button type="button" class="segment-btn" data-other-sex="Female" aria-pressed="false">Female</button></div></div><div class="input-group"><label for="otherWalkerName">Walker name (optional)</label><input id="otherWalkerName" placeholder="Optional"></div></div>
+      <div class="input-group"><label for="otherDogNotes">Notes (optional)</label><textarea id="otherDogNotes" placeholder="Short note"></textarea></div>
+      <div class="choice-grid" id="ownerPresentChoices"><div class="choice-card selected" data-owner-present="yes"><h3>Owner present</h3><p class="small muted" style="margin-top:6px">Save as a private dog</p></div><div class="choice-card" data-owner-present="no"><h3>No owner present</h3><p class="small muted" style="margin-top:6px">Create a lost dog report</p></div></div>
+      <button class="primary-btn" id="saveDogBtn">Save</button><button class="ghost-btn" id="closeSheetBtn">Cancel</button>
+    </div>
+  </div>
+
+  <div class="sheet sheet--dog-detail-full" id="dogDetailSheet" aria-modal="true" role="dialog" aria-labelledby="detailDogName">
+    <div class="dog-detail-full__scroll">
+      <div class="dog-detail-full__pad section-stack">
+        <div style="display:flex;align-items:flex-start;gap:12px"><div class="dog-circle-icon detail-dog-avatar-tap" id="detailDogPhotoWrap" role="button" tabindex="0" aria-label="Dog photo"><img id="detailDogPhoto" class="hidden" alt="Dog photo"><div id="detailDogFallback" class="detail-dog-fallback" aria-hidden="true"></div></div><div style="flex:1;min-width:0"><h2 id="detailDogName">Dog</h2><p class="small muted" id="detailDogSub">Breed</p><p class="tiny muted hidden" id="detailPhotoHint" style="margin-top:6px;line-height:1.35">Photo optional — tap the picture to add or change.</p></div></div>
+        <input type="file" accept="image/*" id="detailDogPhotoInput" class="hidden">
+        <button type="button" class="secondary-btn hidden" id="detailDogRemovePhotoBtn" style="margin-top:8px;width:100%;box-sizing:border-box">Remove photo</button>
+        <div class="choice-pills choice-pills--colours choice-pills--detail-colours" id="detailColourChoices"><button type="button" class="choice-pill green" data-detail-colour="green" title="Relaxed / easy-going">Friendly</button><button type="button" class="choice-pill orange" data-detail-colour="orange" title="Needs a bit of space">Cautious</button><button type="button" class="choice-pill red" data-detail-colour="red" title="High attention">Reactive</button></div>
+        <div class="input-group"><label for="detailNameInput">Name</label><input id="detailNameInput"></div>
+        <div class="input-group"><label for="detailBreedInput">Breed</label><input id="detailBreedInput"></div>
+        <div class="card section-stack hidden" id="detailOwnerNotesBlock" style="padding:12px"><h3 style="font-size:15px;margin:0">From the owner</h3><p class="small muted hidden" id="detailOwnerNoteTags" style="margin:8px 0 0;line-height:1.4"></p><p class="small hidden" id="detailOwnerNoteText" style="margin:6px 0 0;line-height:1.45;color:var(--text)"></p></div>
+        <div class="input-group"><label for="detailNotesInput">Your notes (optional)</label><textarea id="detailNotesInput" placeholder="Only you see this unless you share another way"></textarea></div>
+        <div class="card" style="padding:12px"><div class="meta-row"><span class="muted">Last seen</span><strong id="detailLastSeen">Today</strong></div><div class="meta-row"><span class="muted">Seen count</span><strong id="detailSeenCount">1</strong></div></div>
+        <button type="button" class="primary-btn" id="saveDogDetailBtn">Save changes</button>
+      </div>
+    </div>
+    <footer class="dog-detail-full__footer">
+      <button type="button" class="ghost-btn dog-detail-full__close-btn" id="closeDogDetailBtn">Cerrar</button>
+    </footer>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+<script>
+/* Future: push notifications when app closed — register service worker + FCM/APNs; schedule local notifications for lost-dog radius alerts and red-proximity summaries. */
+const breeds=["Airedale Terrier","Akita","Alaskan Malamute","American Bulldog","American Cocker Spaniel","Australian Shepherd","Basenji","Basset Hound","Beagle","Bernese Mountain Dog","Bichon Frise","Border Collie","Boston Terrier","Boxer","Bulldog","Cavalier King Charles Spaniel","Chihuahua","Cockapoo","Cocker Spaniel","Collie","Dachshund","Dalmatian","Doberman","English Springer Spaniel","French Bulldog","German Shepherd","Golden Retriever","Greyhound","Hungarian Vizsla","Jack Russell Terrier","Labrador Retriever","Lhasa Apso","Maltese","Miniature Schnauzer","Mixed Breed","Pomeranian","Poodle","Pug","Rottweiler","Shih Tzu","Siberian Husky","Staffordshire Bull Terrier","Weimaraner","Whippet","Yorkshire Terrier"];
+const FREE_NEARBY_CAP=3;
+const WALK_PAW_USER_M=115;
+const WALK_PAW_CLUSTER_M=60;
+const WALK_MAX_RANGE_M=780;
+const WALK_ENCOUNTER_M=105;
+const WALK_SEEN_M=220;
+const WALK_PO_TOOLTIP_M=48;
+/* Data layers: state.walk = active / in-flight walk session only (liveDogs, encounters, route, completedSession review). Reset on new walk start; never the source of the Dogs tab list.
+   state.lastWalk = rolling summary of the most recent finished walk for Home; separate from dogs.known.
+   state.dogs.known = persistent cumulative known-dogs collection for the Dogs tab (FREE + Premium). Never replace wholesale on walk lifecycle; only add/update rows when the app already saves or syncs a dog.
+   state.premiumDogInsights.byDogId = optional Premium-only analytics (walkRefs, encounterHistory, lastSeenAt, etc.). Does not gate list access; merge runs only when isPremium. */
+const state={isPremium:false,user:{name:"",email:""},myDog:{photo:"",name:"",breed:"",age:"",sex:"",ownerName:"",walkerNotes:"",privacy:"Standard"},settings:{vibrations:true,sound:true},walk:{active:false,seconds:0,distanceKm:0,liveDogs:[],interval:null,spawnTimeouts:[],lastAlertAt:0,lastAlertKind:"",leafletMap:null,leafletDogLayer:null,leafletUserGroup:null,leafletViewReady:false,startTime:null,route:[],encounters:[],savedUnknownThisWalk:[],completedSession:null},dogs:{known:[{id:1,name:"Max",breed:"Labrador",note:"Friendly",colour:"green",photo:"",seenCount:4,lastSeen:"Today",known:true,lost:false,visibilityLevel:"standard",ownerNoteSharingEnabled:true,ownerNoteTags:[],ownerShortNote:"Very friendly with people and dogs.",dogStatus:"known",status:"known",profileData:{full:{breed:"Labrador",note:"Friendly"},limited:{breed:"Labrador",note:"—"}}},{id:2,name:"Luna",breed:"Spaniel",note:"Reactive — owner shares full notes on trusted circle",colour:"red",photo:"",seenCount:2,lastSeen:"Yesterday",known:true,lost:false,visibilityLevel:"limited",ownerNoteSharingEnabled:true,ownerNoteTags:["nervous_with_unfamiliar_dogs","may_react_if_approached_too_quickly"],ownerShortNote:"Full notes only to trusted circle.",dogStatus:"known",status:"known",profileData:{full:{breed:"Spaniel",note:"Reactive — owner shares full notes on trusted circle"},limited:{breed:"Spaniel",note:"Reactive (limited view)"}}},{id:3,name:"Unknown",breed:"",note:"",colour:"grey",photo:"",seenCount:1,lastSeen:"Today",known:false,lost:false,visibilityLevel:"limited",dogStatus:"unknown",status:"unknown",matched:false,profileData:{full:{breed:"",note:""},limited:{breed:"—",note:"—"}}}]},premiumDogInsights:{byDogId:{}},lastWalk:{distance:"1.2 km",duration:"18 min",dogsSeen:3,endedAt:null,encounterCount:0,savedUnknownCount:0,routePoints:0},docs:[],interactions:[{name:"Max",colour:"green",breed:"Labrador"},{name:"Luna",colour:"red",breed:"Spaniel"},{name:"Unknown",colour:"grey",breed:""}],temp:{otherDogPhoto:"",ownerPresent:"yes",detailDogPending:false},selectedDogId:null,walkDogOverlay:{isOpen:false,dogId:null,frozen:null}};
+function knownDogs(){return state.dogs.known;}
+function mergePremiumInsightsAfterWalk(session){
+/* Premium depth layer only; never required for Dogs list visibility. */
+if(!state.isPremium||!session)return;
+const t=session.endTime;
+(session.liveDogsSnapshot||[]).forEach(ld=>{
+if(!ld.known)return;
+const nm=(ld.name||"").trim();
+if(!nm)return;
+const d=state.dogs.known.find(x=>x.known&&(x.name||"").trim()===nm);
+if(!d)return;
+const id=String(d.id);
+if(!state.premiumDogInsights.byDogId[id])state.premiumDogInsights.byDogId[id]={walkRefs:[],lastSeenAt:null,encounterHistory:[]};
+const bag=state.premiumDogInsights.byDogId[id];
+bag.lastSeenAt=t;
+bag.walkRefs.push({endedAt:t,distanceM:ld.distance,lat:ld.lat,lng:ld.lng});
+});
+(session.encounters||[]).forEach(enc=>{
+if(!enc.known||!(enc.name||"").trim())return;
+const d=state.dogs.known.find(x=>x.known&&(x.name||"").trim()===(enc.name||"").trim());
+if(!d)return;
+const id=String(d.id);
+if(!state.premiumDogInsights.byDogId[id])state.premiumDogInsights.byDogId[id]={walkRefs:[],lastSeenAt:null,encounterHistory:[]};
+const bag=state.premiumDogInsights.byDogId[id];
+if(!bag.encounterHistory)bag.encounterHistory=[];
+bag.encounterHistory.push({t:enc.t,interaction:enc.interaction,distanceM:enc.distanceM});
+});
+}
+
+const screens={entry:document.getElementById("screen-entry"),onboardingProfile:document.getElementById("screen-onboarding-profile"),onboardingPrivacy:document.getElementById("screen-onboarding-privacy"),home:document.getElementById("screen-home"),walk:document.getElementById("screen-walk"),dogs:document.getElementById("screen-dogs"),settings:document.getElementById("screen-settings"),premium:document.getElementById("screen-premium")};
+const bottomNav=document.getElementById("bottomNav");
+const banner=document.getElementById("banner");
+
+function escapeHtml(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function closeWalkDogOverlay(){
+state.walkDogOverlay.isOpen=false;state.walkDogOverlay.dogId=null;state.walkDogOverlay.frozen=null;
+const el=document.getElementById("walkDogOverlay");if(el){el.classList.add("hidden");el.setAttribute("aria-hidden","true");}
+}
+function resolveWalkLiveDogRef(id){
+if(state.walk.active)return state.walk.liveDogs.find(x=>String(x.id)===String(id));
+const s=state.walk.completedSession;
+if(s&&s.liveDogsSnapshot)return s.liveDogsSnapshot.find(x=>String(x.id)===String(id));
+return null;
+}
+function judgedColourFromPool(d){
+const c=d.colour;
+if(c&&c!=="grey")return c;
+if(d.risk==="high")return"red";
+if(d.risk==="med"||d.risk==="medium")return"orange";
+return"green";
+}
+function getLiveRecognitionState(d){
+if(d.liveRecognitionState)return d.liveRecognitionState;
+if(d.known)return"interacted";
+if(d.wasEncountered)return"interacted";
+if(d.unknownUnlockedLive===true)return"seen";
+if(d.unknownUnlockedLive===false)return"unknown";
+if((d.distance||0)<=WALK_SEEN_M)return"seen";
+return"unknown";
+}
+function getLiveColourState(d){
+if(d.liveColourState)return d.liveColourState;
+if(d.known)return d.colour||"green";
+if(d.wasEncountered)return judgedColourFromPool(d);
+if(getLiveRecognitionState(d)==="seen")return"blue";
+return d.colour||"grey";
+}
+function liveDogRowClickOpen(d){return true;}
+function refreshDetailOwnerNotesSection(dog){
+const block=document.getElementById("detailOwnerNotesBlock");
+const tagsEl=document.getElementById("detailOwnerNoteTags");
+const txtEl=document.getElementById("detailOwnerNoteText");
+if(!block||!tagsEl||!txtEl)return;
+if(!dog.ownerNoteSharingEnabled){block.classList.add("hidden");return;}
+const lim=isLimitedVisibility(dog);
+if(lim){
+const s=limitedOwnerNoteSummary(dog);
+if(!s){block.classList.add("hidden");return;}
+tagsEl.textContent="";
+tagsEl.classList.add("hidden");
+txtEl.textContent=s;
+txtEl.classList.remove("hidden");
+block.classList.remove("hidden");
+return;
+}
+const tags=(dog.ownerNoteTags||[]).join(", ");
+const note=(dog.ownerShortNote||"").trim();
+if(!tags&&!note){block.classList.add("hidden");return;}
+if(tags){tagsEl.textContent=tags;tagsEl.classList.remove("hidden");}else{tagsEl.textContent="";tagsEl.classList.add("hidden");}
+if(note){txtEl.textContent=note;txtEl.classList.remove("hidden");}else{txtEl.textContent="";txtEl.classList.add("hidden");}
+block.classList.remove("hidden");
+}
+function limitedOwnerNoteSummary(d){
+if(!d.ownerNoteSharingEnabled)return"";
+const t=new Set(d.ownerNoteTags||[]);
+if(t.has("prefers_space")||t.has("nervous_with_unfamiliar_dogs"))return"Give space";
+if(t.has("nervous_with_unfamiliar_people"))return"Avoid direct approach";
+if(t.has("may_react_if_approached_too_quickly"))return"Approach calmly";
+if(t.has("startles_easily"))return"Caution around dogs";
+if(t.has("needs_slow_introductions"))return"Approach calmly";
+const sn=(d.ownerShortNote||"").trim();
+return sn?sn.slice(0,80):"";
+}
+function liveDogPrimaryLine(d){
+const lim=isLimitedVisibility(d);
+if(!d.known){
+const reco=getLiveRecognitionState(d);
+if(reco==="unknown")return"Unknown dog";
+if(reco==="seen")return((d.displayBreed||d.breed||"").trim()||"—");
+if(lim)return((d.displayBreed||d.breed||"").trim()||"—");
+const dn=(d.displayName||"").trim();
+const br=(d.displayBreed||d.breed||"").trim();
+const ag=(d.displayAge||"").trim()||"—";
+const sx=(d.displaySex||"").trim()||"—";
+return`${dn||"Dog"} · ${br||"—"} · ${ag} · ${sx}`;
+}
+if(lim)return((d.breed||"").trim()||"—");
+const nm=(d.name||"").trim();
+const br=(d.breed||"").trim();
+const ag=(d.age||"").trim()||"—";
+const sx=(d.sex||"").trim()||"—";
+return nm?`${nm} · ${br||"—"} · ${ag} · ${sx}`:`${br||"—"} · ${ag} · ${sx}`;
+}
+function liveDogSecondaryLine(d,review){
+const dist=Math.round(d.distance||0);
+return review?`${dist}m · walk ended`:`${dist}m · updating`;
+}
+function walkOverlayFrozenDistanceFor(d){
+const oz=state.walkDogOverlay.frozen;
+if(!oz||String(oz.dogId)!==String(d.id))return null;
+return oz.distanceM;
+}
+function walkOverlayAllowsCategoryEdit(){
+return state.walk.active||!!state.walk.completedSession;
+}
+function walkOverlayCategoryPillsHtml(d){
+if(!walkOverlayAllowsCategoryEdit()||d.known)return"";
+const cur=getLiveColourState(d);
+const pill=(cat,label)=>`<button type="button" class="choice-pill ${cat}${cur===cat?" active":""}" data-walk-overlay-cat="${cat}">${label}</button>`;
+return`<div class="choice-pills choice-pills--colours" style="margin-top:10px" role="group" aria-label="Category">${pill("green","Friendly")}${pill("orange","Cautious")}${pill("red","Reactive")}${pill("blue","Seen")}</div><p class="small muted" style="margin:8px 0 0">Distances stay fixed while this panel is open.</p>`;
+}
+function reapplyWalkCategoryOverrideOnDog(d){
+if(!d.walkCategoryOverride)return;
+if(d.walkCategoryOverride==="blue"){
+d.wasEncountered=false;
+d.liveRecognitionState="seen";
+d.liveColourState="blue";
+}else{
+d.wasEncountered=true;
+d.colour=d.walkCategoryOverride;
+d.liveRecognitionState="interacted";
+d.liveColourState=d.walkCategoryOverride;
+}
+}
+function applyWalkOverlayCategory(liveDogId,cat){
+let d=null;
+let fromReview=false;
+if(state.walk.active)d=state.walk.liveDogs.find(x=>String(x.id)===String(liveDogId));
+else if(state.walk.completedSession){
+d=(state.walk.completedSession.liveDogsSnapshot||[]).find(x=>String(x.id)===String(liveDogId));
+fromReview=!!d;
+}
+if(!d||d.known)return;
+if(cat==="blue"){d.walkCategoryOverride="blue";d.wasEncountered=false;}
+else if(cat==="green"||cat==="orange"||cat==="red"){d.walkCategoryOverride=cat;d.wasEncountered=true;d.colour=cat;}
+else return;
+if(fromReview){
+reapplyWalkCategoryOverrideOnDog(d);
+if(syncCompletedSessionSightingsToDogsList())renderDogs();
+}else{
+applyLiveWalkDerivedState();
+if(syncLiveSightingsToDogsList())renderDogs();
+}
+renderWalk();
+const body=document.getElementById("walkDogOverlayBody");
+if(body&&state.walkDogOverlay.isOpen&&String(state.walkDogOverlay.dogId)===String(liveDogId)){
+const d2=resolveWalkLiveDogRef(liveDogId);
+if(d2)body.innerHTML=formatWalkDogOverlayBody(d2);
+}
+}
+function formatWalkDogOverlayBody(d){
+const fz=walkOverlayFrozenDistanceFor(d);
+const distDisp=fz!=null?fz:Math.round(d.distance||0);
+const lim=isLimitedVisibility(d);
+const reco=!d.known?getLiveRecognitionState(d):null;
+if(!d.known&&reco==="unknown"){
+return `<h3>Unknown dog</h3><p class="small muted">Move within range to recognise breed.</p><div class="card" style="padding:12px"><div class="meta-list"><div class="meta-row"><span class="muted">Approx. distance</span><strong>${distDisp} m</strong></div></div></div>${walkOverlayCategoryPillsHtml(d)}`;
+}
+const pinC=getLiveColourState(d);
+if(!d.known&&reco==="seen"){
+const br=(d.displayBreed||d.breed||"").trim()||"—";
+const rows=`<div class="meta-row"><span class="muted">Breed</span><strong>${escapeHtml(br)}</strong></div><div class="meta-row"><span class="muted">Distance</span><strong>${distDisp} m</strong></div>`;
+return `<div class="section-stack" style="gap:12px"><div style="display:flex;align-items:center;gap:12px">${walkLiveListPinHtml(pinC,d.id)}<div><h2 style="font-size:18px;margin:0">${escapeHtml(br)}</h2><p class="small muted" style="margin:4px 0 0">Nearby</p></div></div><div class="card" style="padding:12px"><div class="meta-list">${rows}</div></div>${walkOverlayCategoryPillsHtml(d)}</div>`;
+}
+let rows="";
+if(d.known){
+if(lim)rows+=`<div class="meta-row"><span class="muted">Breed</span><strong>${escapeHtml((d.breed||"—").trim())}</strong></div>`;
+else{
+rows+=`<div class="meta-row"><span class="muted">Name</span><strong>${escapeHtml((d.name||"").trim()||"—")}</strong></div>`;
+rows+=`<div class="meta-row"><span class="muted">Breed</span><strong>${escapeHtml((d.breed||"").trim()||"—")}</strong></div>`;
+rows+=`<div class="meta-row"><span class="muted">Age</span><strong>${escapeHtml((d.age||"").trim()||"—")}</strong></div>`;
+rows+=`<div class="meta-row"><span class="muted">Sex</span><strong>${escapeHtml((d.sex||"").trim()||"—")}</strong></div>`;
+}
+}else{
+if(lim)rows+=`<div class="meta-row"><span class="muted">Breed</span><strong>${escapeHtml((d.displayBreed||d.breed||"—").trim())}</strong></div>`;
+else{
+rows+=`<div class="meta-row"><span class="muted">Name</span><strong>${escapeHtml((d.displayName||"").trim()||"—")}</strong></div>`;
+rows+=`<div class="meta-row"><span class="muted">Breed</span><strong>${escapeHtml((d.displayBreed||d.breed||"—").trim())}</strong></div>`;
+rows+=`<div class="meta-row"><span class="muted">Age</span><strong>${escapeHtml((d.displayAge||"").trim()||"—")}</strong></div>`;
+rows+=`<div class="meta-row"><span class="muted">Sex</span><strong>${escapeHtml((d.displaySex||"").trim()||"—")}</strong></div>`;
+}
+}
+rows+=`<div class="meta-row"><span class="muted">Distance</span><strong>${distDisp} m</strong></div>`;
+let notes="";
+if(d.ownerNoteSharingEnabled){
+if(lim){
+const s=limitedOwnerNoteSummary(d);
+if(s)notes=`<div class="card section-stack" style="padding:12px;margin-top:10px"><h3 style="font-size:15px;margin:0">Owner context</h3><p class="small" style="margin:8px 0 0">${escapeHtml(s)}</p></div>`;
+}else{
+const tags=(d.ownerNoteTags||[]).join(", ");
+const note=(d.ownerShortNote||"").trim();
+notes=`<div class="card section-stack" style="padding:12px;margin-top:10px"><h3 style="font-size:15px;margin:0">Owner notes</h3>`;
+if(tags)notes+=`<p class="small muted" style="margin:8px 0 0">${escapeHtml(tags)}</p>`;
+if(note)notes+=`<p class="small" style="margin:6px 0 0">${escapeHtml(note)}</p>`;
+notes+=`</div>`;
+}
+}
+return `<div class="section-stack" style="gap:12px"><div style="display:flex;align-items:center;gap:12px">${walkLiveListPinHtml(pinC,d.id)}<div><h2 style="font-size:18px;margin:0">${escapeHtml(liveDogPrimaryLine(d))}</h2><p class="small muted" style="margin:4px 0 0">Nearby</p></div></div><div class="card" style="padding:12px"><div class="meta-list">${rows}</div></div>${notes}${walkOverlayCategoryPillsHtml(d)}</div>`;
+}
+function openWalkLiveDogOverlay(dogId){
+const d=resolveWalkLiveDogRef(dogId);if(!d)return;
+state.walkDogOverlay.isOpen=true;state.walkDogOverlay.dogId=dogId;
+state.walkDogOverlay.frozen={dogId:String(dogId),distanceM:Math.round(d.distance||0)};
+const body=document.getElementById("walkDogOverlayBody");if(body)body.innerHTML=formatWalkDogOverlayBody(d);
+const el=document.getElementById("walkDogOverlay");if(el){el.classList.remove("hidden");el.setAttribute("aria-hidden","false");}
+}
+function refreshWalkDogOverlayIfOpen(){
+}
+function buildLiveDogRowHtml(d,review){
+const open=liveDogRowClickOpen(d);
+const smart=!review&&state.isPremium&&d.risk==="high"?'<span class="smart-tag">Smart avoidance</span>':"";
+const noc=open?"":" interaction-item--noopen";
+const rowPin=getLiveColourState(d);
+return `<div class="interaction-item${noc}" data-live-dog-id="${escapeHtml(String(d.id))}" data-live-open="${open?1:0}" role="button" tabindex="${open?0:-1}">${walkLiveListPinHtml(rowPin,d.id)}<div style="flex:1;min-width:0"><div style="font-weight:600;display:flex;align-items:center;flex-wrap:wrap;gap:4px">${escapeHtml(liveDogPrimaryLine(d))}${smart}</div><div class="small muted">${escapeHtml(liveDogSecondaryLine(d,review))}</div></div></div>`;
+}
+function applyLiveWalkDerivedState(){
+const vis=mapDogsForWalk();
+state.walk.liveDogs.forEach(d=>{
+if(!d.known&&d.walkCategoryOverride){
+if(d.walkCategoryOverride==="blue"){
+d.wasEncountered=false;
+d.liveRecognitionState="seen";
+d.liveColourState="blue";
+}else{
+d.wasEncountered=true;
+d.colour=d.walkCategoryOverride;
+d.liveRecognitionState="interacted";
+d.liveColourState=d.walkCategoryOverride;
+}
+d.isPoRange=d.distance<=WALK_PO_TOOLTIP_M;
+d.isHaloRange=vis.some(x=>x.id===d.id)&&!walkMapUsePawOnly(vis,d);
+return;
+}
+if(d.known){
+d.liveRecognitionState="interacted";
+d.liveColourState=d.colour||"green";
+}else if(d.wasEncountered){
+d.liveRecognitionState="interacted";
+d.liveColourState=judgedColourFromPool(d);
+}else if((d.distance||0)<=WALK_SEEN_M){
+d.liveRecognitionState="seen";
+d.liveColourState="blue";
+}else{
+d.liveRecognitionState="unknown";
+d.liveColourState="grey";
+}
+d.isPoRange=d.distance<=WALK_PO_TOOLTIP_M;
+d.isHaloRange=vis.some(x=>x.id===d.id)&&!walkMapUsePawOnly(vis,d);
+});
+}
+function liveSightingListNotes(reco,col,vis){
+const lim=vis==="limited";
+if(lim)return{std:"",lim:reco==="seen"?"Seen (limited)":(col==="red"?"Reactive (limited view)":"—")};
+const std=reco==="seen"?"Seen nearby":(col==="green"?"Friendly":col==="orange"?"Cautious":col==="red"?"Reactive":"Nearby");
+return{std,lim:"—"};
+}
+function syncSightingsFromLiveList(list){
+let changed=false;
+const kd=knownDogs();
+for(const d of list){
+if(d.known)continue;
+const reco=getLiveRecognitionState(d);
+if(reco==="unknown")continue;
+const liveKey=String(d.id);
+const sid="sight-"+liveKey.replace(/[^a-zA-Z0-9-]/g,"_");
+const br=((d.displayBreed||d.breed||"").trim())||"—";
+const col=getLiveColourState(d);
+const vis=d.visibilityLevel||"standard";
+const lim=vis==="limited";
+const {std:stdNote,lim:limNote}=liveSightingListNotes(reco,col,vis);
+let row=kd.find(x=>x.linkedLiveDogId!=null&&String(x.linkedLiveDogId)===liveKey);
+if(!row)row=kd.find(x=>String(x.id)===sid);
+if(!row){
+row={id:sid,linkedLiveDogId:d.id,name:"Unknown",breed:br,note:lim?"":stdNote,colour:col,photo:"",seenCount:1,lastSeen:"Today",known:false,lost:false,visibilityLevel:vis,fromLiveSight:true,ownerNoteSharingEnabled:!!d.ownerNoteSharingEnabled,ownerNoteTags:[...(d.ownerNoteTags||[])],ownerShortNote:d.ownerShortNote||"",dogStatus:reco==="seen"?"seen":"unknown",status:reco==="seen"?"seen":"unknown",matched:false,profileData:{full:{breed:br,note:lim?"":stdNote},limited:{breed:br,note:limNote}}};
+kd.unshift(row);
+changed=true;
+if(state.isPremium){const kid=String(row.id);if(!state.premiumDogInsights.byDogId[kid])state.premiumDogInsights.byDogId[kid]={walkRefs:[],lastSeenAt:null};}
+}else{
+if(String(row.linkedLiveDogId)!==liveKey){row.linkedLiveDogId=d.id;}
+if(row.breed!==br){row.breed=br;changed=true;}
+if(row.colour!==col){row.colour=col;changed=true;}
+if(row.visibilityLevel!==vis){row.visibilityLevel=vis;changed=true;}
+const wantDs=reco==="seen"?"seen":"unknown";
+if(row.dogStatus!==wantDs){row.dogStatus=wantDs;changed=true;}
+if(row.status!==wantDs){row.status=wantDs;changed=true;}
+if(!lim){if(row.note!==stdNote){row.note=stdNote;changed=true;}}else if(row.note){row.note="";changed=true;}
+row.profileData=row.profileData||{full:{},limited:{}};
+const fB=(row.profileData.full&&row.profileData.full.breed)||"";const fN=(row.profileData.full&&row.profileData.full.note)||"";
+const lB=(row.profileData.limited&&row.profileData.limited.breed)||"";const lN=(row.profileData.limited&&row.profileData.limited.note)||"";
+if(fB!==br||fN!==(lim?"":stdNote)){row.profileData.full=Object.assign({},row.profileData.full||{},{breed:br,note:lim?"":stdNote});changed=true;}
+if(lB!==br||lN!==limNote){row.profileData.limited=Object.assign({},row.profileData.limited||{},{breed:br,note:limNote});changed=true;}
+if(row.lastSeen!=="Today"){row.lastSeen="Today";changed=true;}
+const oSh=!!d.ownerNoteSharingEnabled;const oTags=[...(d.ownerNoteTags||[])];const oSn=d.ownerShortNote||"";
+if(!!row.ownerNoteSharingEnabled!==oSh){row.ownerNoteSharingEnabled=oSh;changed=true;}
+if(JSON.stringify(row.ownerNoteTags||[])!==JSON.stringify(oTags)){row.ownerNoteTags=oTags;changed=true;}
+if((row.ownerShortNote||"")!==oSn){row.ownerShortNote=oSn;changed=true;}
+}
+}
+return changed;
+}
+function syncLiveSightingsToDogsList(){
+if(!state.walk.active)return false;
+return syncSightingsFromLiveList(state.walk.liveDogs);
+}
+function syncCompletedSessionSightingsToDogsList(){
+if(!state.walk.completedSession)return false;
+return syncSightingsFromLiveList(state.walk.completedSession.liveDogsSnapshot||[]);
+}
+
+function showBanner(message,ms=3200,variant=""){
+banner.textContent=message;banner.classList.remove("banner--alert-strong","banner--info");
+if(variant==="strong")banner.classList.add("banner--alert-strong");
+else if(variant==="info")banner.classList.add("banner--info");
+banner.classList.add("active");clearTimeout(showBanner._t);showBanner._t=setTimeout(()=>banner.classList.remove("active"),ms);
+}
+function clearWalkProximityInlineAlert(){
+clearTimeout(showWalkProximityInlineAlert._t);
+const slot=document.getElementById("walkProximityAlertSlot");
+const stats=document.getElementById("walkTopStats");
+if(slot){slot.classList.add("hidden");slot.textContent="";slot.classList.remove("walk-proximity-alert--strong","walk-proximity-alert--info");}
+if(stats)stats.classList.remove("hidden");
+}
+function showWalkProximityInlineAlert(message,ms,variant){
+const slot=document.getElementById("walkProximityAlertSlot");
+const stats=document.getElementById("walkTopStats");
+if(!slot||!stats||!state.walk.active)return;
+clearTimeout(showWalkProximityInlineAlert._t);
+stats.classList.add("hidden");
+slot.classList.remove("hidden");
+slot.textContent=message;
+slot.classList.remove("walk-proximity-alert--strong","walk-proximity-alert--info");
+if(variant==="strong")slot.classList.add("walk-proximity-alert--strong");
+else if(variant==="info")slot.classList.add("walk-proximity-alert--info");
+showWalkProximityInlineAlert._t=setTimeout(()=>{clearWalkProximityInlineAlert();},ms);
+}
+function applyPremiumUI(){
+document.body.classList.toggle("premium-active",state.isPremium);
+const w=document.getElementById("walkMapCard");
+if(w)w.classList.toggle("map-card--premium",state.isPremium);
+const chat=document.getElementById("walkLiveChatBtn");
+if(chat)chat.classList.toggle("hidden",!state.isPremium||!state.walk.active);
+const pills=document.getElementById("settingsPremiumPills");
+if(pills){
+const pr=(id,label,lock)=>`<div class="pill${lock?" pill--locked":""}"><span class="pill__start"><svg class="pill__ico" aria-hidden="true"><use href="#${id}"/></svg>${label}</span>${lock?`<svg class="pill__ico pill__ico--end" aria-hidden="true"><use href="#ico-lock"/></svg>`:""}</div>`;
+if(state.isPremium)pills.innerHTML=pr("ico-message","Live chat",false)+pr("ico-signal","Extended range",false)+pr("ico-sparkle","Smart avoidance",false);
+else pills.innerHTML=pr("ico-message","Live chat",true)+pr("ico-signal","Extended range",true)+pr("ico-sparkle","Smart avoidance",true);
+}
+}
+function setDogAgeUnit(unit){
+const g=document.getElementById("dogAgeUnitGroup");
+if(!g)return;
+g.querySelectorAll("[data-age-unit]").forEach(b=>{const on=b.dataset.ageUnit===unit;b.classList.toggle("selected",on);b.setAttribute("aria-pressed",on?"true":"false");});
+}
+function getDogAgeUnit(){const b=document.querySelector("#dogAgeUnitGroup [data-age-unit].selected");return b?b.dataset.ageUnit:"years";}
+function setDogSex(val){
+const g=document.getElementById("dogSexGroup");
+if(!g)return;
+g.querySelectorAll("[data-sex]").forEach(b=>{const on=!!val&&b.dataset.sex===val;b.classList.toggle("selected",on);b.setAttribute("aria-pressed",on?"true":"false");});
+}
+function getDogSex(){const b=document.querySelector("#dogSexGroup [data-sex].selected");return b?b.dataset.sex:"";}
+function setOtherDogSex(val){
+const g=document.getElementById("otherDogSexGroup");
+if(!g)return;
+const want=!val||val===""?"unknown":val;
+g.querySelectorAll("[data-other-sex]").forEach(b=>{const on=b.dataset.otherSex===want;b.classList.toggle("selected",on);b.setAttribute("aria-pressed",on?"true":"false");});
+}
+function parseAgeIntoForm(ageStr){
+const raw=(ageStr||"").trim();
+const numEl=document.getElementById("dogAgeNum");
+if(!numEl)return;
+const m=raw.match(/^(\d+)\s*(years?|months?)$/i);
+if(m){numEl.value=m[1];setDogAgeUnit(/^month/i.test(m[2])?"months":"years");return;}
+const lead=raw.match(/^(\d+)/);
+numEl.value=lead?lead[1]:"";
+setDogAgeUnit("years");
+}
+function showScreen(key){
+Object.values(screens).forEach(s=>s.classList.remove("active"));
+screens[key].classList.add("active");
+if(["home","walk","dogs","settings","premium"].includes(key))bottomNav.classList.remove("hidden");else bottomNav.classList.add("hidden");
+document.querySelectorAll(".nav-item").forEach(btn=>btn.classList.toggle("active",btn.dataset.screen===key));
+if(key==="onboardingProfile"){
+document.getElementById("dogName").value=state.myDog.name&&state.myDog.name!=="My Dog"?state.myDog.name:"";
+document.getElementById("dogBreed").value=state.myDog.breed||"";
+parseAgeIntoForm(state.myDog.age);
+setDogSex(state.myDog.sex||"");
+document.getElementById("dogOwnerName").value=state.myDog.ownerName||"";
+document.getElementById("dogWalkerNotes").value=state.myDog.walkerNotes||"";
+}
+if(key==="onboardingPrivacy"){
+if(state.myDog.privacy==="Invisible")state.myDog.privacy="Standard";
+document.querySelectorAll("[data-privacy]").forEach(c=>{c.classList.toggle("selected",c.dataset.privacy===state.myDog.privacy);});
+}
+if(key==="home")renderHome();
+if(key!=="walk"){closeWalkDogOverlay();clearWalkProximityInlineAlert();}
+if(key==="walk"){
+renderWalk();
+if(state.walk.leafletMap)requestAnimationFrame(()=>{try{state.walk.leafletMap.invalidateSize();}catch(e){}});
+}
+if(key==="dogs")renderDogs();
+if(key==="settings")renderSettings();
+}
+function colourHex(c){if(c==="green")return"#16a34a";if(c==="orange")return"#d97706";if(c==="red")return"#dc2626";if(c==="blue")return"#2563eb";return"#94a3b8";}
+function pawSvg(fill="#94a3b8"){return `<svg class="ico-dog-svg" viewBox="0 0 24 24" width="22" height="22" style="color:${fill}" aria-hidden="true"><use href="#ico-dog-profile"/></svg>`;}
+function walkPinVariantFromId(id){
+const s=String(id!=null?id:"x");let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;
+return h%2===0?"orbit":"waves";
+}
+function walkMapOrbitDots(){return `<div class="walk-mmap-pin-orbit-wrap"><div class="walk-mmap-pin__orbit" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div>`;}
+function walkMapWavesLayer(){return `<div class="walk-mmap-pin__waves" aria-hidden="true"></div>`;}
+function walkMapDogPinHtml(hexColour,dogId){
+const v=walkPinVariantFromId(dogId);
+return `<div class="walk-mmap-pin walk-mmap-pin--dog walk-mmap-pin--${v}" style="--pin-col:${hexColour}"><span class="material-symbols-rounded walk-mmap-pin__sym" aria-hidden="true">pets</span>${v==="orbit"?walkMapOrbitDots():walkMapWavesLayer()}</div>`;
+}
+function walkMapUserPinHtml(){
+return `<div class="walk-mmap-pin walk-mmap-pin--user"><span class="material-symbols-rounded walk-mmap-pin__sym" aria-hidden="true">pets</span>${walkMapWavesLayer()}</div>`;
+}
+function walkLiveListPinHtml(colour,dogId){
+const c=colourHex(colour);
+const v=walkPinVariantFromId(dogId);
+return `<div class="dog-circle-icon walk-mmap-pin-list"><div class="walk-mmap-pin walk-mmap-pin--dog walk-mmap-pin--${v}" style="--pin-col:${c}"><span class="material-symbols-rounded walk-mmap-pin__sym" aria-hidden="true">pets</span>${v==="orbit"?walkMapOrbitDots():walkMapWavesLayer()}</div></div>`;
+}
+function walkDetailPinHtml(colour,dogId){
+const c=colourHex(colour);
+const v=walkPinVariantFromId(dogId);
+return `<div class="walk-mmap-pin walk-mmap-pin--dog walk-mmap-pin--${v}" style="--pin-col:${c}"><span class="material-symbols-rounded walk-mmap-pin__sym" aria-hidden="true">pets</span>${v==="orbit"?walkMapOrbitDots():walkMapWavesLayer()}</div>`;
+}
+const WALK_DEMO_CENTER=[53.4808,-2.2426];
+function offsetMetersToLatLng(lat,lng,northM,eastM){
+const r=6378137;
+const dLat=(northM/r)*(180/Math.PI);
+const dLng=(eastM/(r*Math.cos((Math.PI*lat)/180)))*(180/Math.PI);
+return[lat+dLat,lng+dLng];
+}
+function walkDogLatLngFromOffsets(northM,eastM){return offsetMetersToLatLng(WALK_DEMO_CENTER[0],WALK_DEMO_CENTER[1],northM,eastM);}
+function metersBetweenLatLng(lat1,lng1,lat2,lng2){
+const R=6378137;
+const r1=(lat1*Math.PI)/180,r2=(lat2*Math.PI)/180;
+const dLat=((lat2-lat1)*Math.PI)/180,dLng=((lng2-lng1)*Math.PI)/180;
+const a=Math.sin(dLat/2)**2+Math.cos(r1)*Math.cos(r2)*Math.sin(dLng/2)**2;
+return 2*R*Math.asin(Math.min(1,Math.sqrt(a)));
+}
+function walkMapUsePawOnly(visible,dog){
+if(dog.distance<=WALK_PAW_USER_M)return true;
+for(let i=0;i<visible.length;i++){
+const o=visible[i];
+if(o===dog)continue;
+if(metersBetweenLatLng(dog.lat,dog.lng,o.lat,o.lng)<=WALK_PAW_CLUSTER_M)return true;
+}
+return false;
+}
+function isLimitedVisibility(dog){return(dog.visibilityLevel||"standard")==="limited";}
+function dogsListRowFields(dog){
+const lim=isLimitedVisibility(dog);
+const breed=lim?((dog.profileData&&dog.profileData.limited&&dog.profileData.limited.breed)||dog.breed||"—"):(dog.breed||"—");
+const note=lim?((dog.profileData&&dog.profileData.limited&&dog.profileData.limited.note)||"—"):(dog.note||"No notes yet");
+return{breed,note};
+}
+function pushWalkEncounter(payload){
+if(!state.walk.active)return;
+state.walk.encounters.push({t:Date.now(),...payload});
+}
+function sampleWalkRoutePoint(){
+if(!state.walk.active||!state.walk.startTime)return;
+const[jLat,jLng]=offsetMetersToLatLng(WALK_DEMO_CENTER[0],WALK_DEMO_CENTER[1],(Math.random()-0.5)*8,(Math.random()-0.5)*8);
+state.walk.route.push({t:Date.now(),lat:jLat,lng:jLng});
+}
+function stepLiveDogPositions(dog){
+let nm=dog.northM,em=dog.eastM;
+const moveMode=dog.moveMode||"approach";
+if(moveMode==="pass_by"){
+const dist=Math.hypot(nm,em);
+if(dist<88)dog._passedPeak=true;
+if(dog._passedPeak){
+const ang=Math.atan2(em,nm)||0;
+nm+=Math.cos(ang)*4.2;
+em+=Math.sin(ang)*4.2;
+}else{
+const pull=dog.colour==="red"?1.014:dog.colour==="orange"?1.011:1.008;
+nm/=pull;em/=pull;
+}
+}else{
+const pull=dog.colour==="red"?1.014:dog.colour==="orange"?1.011:1.008;
+nm/=pull;em/=pull;
+}
+const distance=Math.max(12,Math.round(Math.hypot(nm,em)));
+const[lat,lng]=walkDogLatLngFromOffsets(nm,em);
+return{...dog,northM:nm,eastM:em,lat,lng,distance};
+}
+function processWalkLiveEncounters(dog){
+const vis=dog.visibilityLevel||"standard";
+const label=dog.known&&dog.name?dog.name:"Unknown";
+const encBase={liveDogId:dog.id,name:label,known:!!dog.known,visibilityLevel:vis,colour:dog.colour,breed:(dog.breed||"").trim(),distanceM:dog.distance,approxLat:dog.lat,approxLng:dog.lng};
+if(!dog._seenLogged&&dog.distance<=WALK_SEEN_M){
+dog._seenLogged=true;
+pushWalkEncounter({...encBase,interaction:"seen"});
+}
+if(!dog._encounterLogged&&dog.distance<=WALK_ENCOUNTER_M){
+dog._encounterLogged=true;
+dog.wasEncountered=true;
+pushWalkEncounter({...encBase,interaction:"encountered"});
+}
+}
+function walkMapDogTooltip(d){
+const lim=isLimitedVisibility(d);
+let tip;
+if(d.known){
+const nm=(d.name||"").trim();
+tip=nm?nm:((d.breed||"").trim())||"Dog";
+}else{
+const reco=getLiveRecognitionState(d);
+if(reco==="unknown")tip="Unknown dog";
+else if(reco==="seen")tip=((d.displayBreed||d.breed||"").trim())||"Dog";
+else if(lim)tip=((d.displayBreed||d.breed||"").trim())||"Dog";
+else tip=((d.displayName||"").trim())||((d.displayBreed||d.breed||"").trim())||"Dog";
+}
+if((d.distance||0)<=WALK_PO_TOOLTIP_M)tip=`${tip} · PO`;
+return tip;
+}
+function freezeWalkSessionPayload(){
+applyLiveWalkDerivedState();
+const endTime=Date.now();
+const vis=[...state.walk.liveDogs].sort((a,b)=>(a.distance||0)-(b.distance||0));
+const liveSnap=state.walk.liveDogs.map(d=>{
+const st=d.status||d.dogStatus||(d.known?"known":"unknown");
+return{id:d.id,name:d.known?d.name:"",breed:d.breed||"",colour:d.colour,known:!!d.known,visibilityLevel:d.visibilityLevel||"standard",dogStatus:st,status:st,distance:d.distance,lat:d.lat,lng:d.lng,wasEncountered:!!d.wasEncountered,wasSaved:!!d.wasSaved,matched:!!d.matched,moveMode:d.moveMode||"approach",risk:d.risk||"low",isNearby:d.distance<=WALK_ENCOUNTER_M,liveRecognitionState:d.liveRecognitionState,liveColourState:d.liveColourState,walkCategoryOverride:d.walkCategoryOverride||null,age:d.age||"",sex:d.sex||"",displayName:d.displayName||"",displayBreed:d.displayBreed||d.breed||"",displayAge:d.displayAge||"",displaySex:d.displaySex||"",ownerNoteSharingEnabled:!!d.ownerNoteSharingEnabled,ownerNoteTags:d.ownerNoteTags||[],ownerShortNote:d.ownerShortNote||"",ownerNoteUpdatedAt:d.ownerNoteUpdatedAt!=null?d.ownerNoteUpdatedAt:null,isPoRange:d.distance<=WALK_PO_TOOLTIP_M,isHaloRange:vis.some(x=>x.id===d.id)&&!walkMapUsePawOnly(vis,d)};
+});
+const route=state.walk.route.slice();
+return{startTime:state.walk.startTime,endTime,elapsedSeconds:state.walk.seconds,distanceKm:state.walk.distanceKm,route,routeSummary:{pointCount:route.length,durationSec:state.walk.seconds,distanceKm:state.walk.distanceKm,startedAt:state.walk.startTime,endedAt:endTime},encounters:state.walk.encounters.slice(),savedUnknownDogs:state.walk.savedUnknownThisWalk.slice(),liveDogsSnapshot:liveSnap,visibleDogs:liveSnap,knownContactsSeen:liveSnap.filter(x=>x.known)};
+}
+function destroyWalkLeaflet(){
+if(state.walk.leafletMap){
+try{state.walk.leafletMap.remove();}catch(e){}
+state.walk.leafletMap=null;
+state.walk.leafletRouteLayer=null;
+state.walk.leafletDogLayer=null;
+state.walk.leafletUserGroup=null;
+}
+}
+function initWalkLeafletIfNeeded(){
+if(typeof L==="undefined")return;
+const pane=document.getElementById("walkLeafletPane");
+if(!pane||state.walk.leafletMap)return;
+const map=L.map(pane,{zoomControl:true,scrollWheelZoom:true,attributionControl:true}).setView(WALK_DEMO_CENTER,16);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
+state.walk.leafletMap=map;
+state.walk.leafletRouteLayer=L.layerGroup().addTo(map);
+state.walk.leafletDogLayer=L.layerGroup().addTo(map);
+const ug=L.layerGroup().addTo(map);
+state.walk.leafletUserGroup=ug;
+const userIcon=L.divIcon({html:walkMapUserPinHtml(),className:"",iconSize:[46,46],iconAnchor:[23,23]});
+L.marker(WALK_DEMO_CENTER,{icon:userIcon,interactive:false,zIndexOffset:600}).addTo(ug);
+setTimeout(()=>{try{map.invalidateSize();}catch(e){}},80);
+setTimeout(()=>{try{map.invalidateSize();}catch(e){}},350);
+}
+function dogsSortedByDistance(){return[...state.walk.liveDogs].sort((a,b)=>a.distance-b.distance);}
+function mapDogsForWalk(){
+const sorted=dogsSortedByDistance();
+if(state.isPremium)return sorted;
+return sorted.slice(0,FREE_NEARBY_CAP);
+}
+function haloRadiusMForDog(colour){
+if(colour==="red")return 108;
+if(colour==="orange")return 84;
+if(colour==="green")return 64;
+if(colour==="blue")return 74;
+return 74;
+}
+function renderWalkMap(){
+if(!state.walk.active)return;
+if(typeof L==="undefined")return;
+initWalkLeafletIfNeeded();
+const map=state.walk.leafletMap;
+if(!map||!state.walk.leafletDogLayer)return;
+if(state.walk.leafletUserGroup&&state.walk.leafletUserGroup.getLayers().length===0){
+const userIcon=L.divIcon({html:walkMapUserPinHtml(),className:"",iconSize:[46,46],iconAnchor:[23,23]});
+L.marker(WALK_DEMO_CENTER,{icon:userIcon,interactive:false,zIndexOffset:600}).addTo(state.walk.leafletUserGroup);
+}
+if(state.walk.leafletRouteLayer)state.walk.leafletRouteLayer.clearLayers();
+state.walk.leafletDogLayer.clearLayers();
+const visible=mapDogsForWalk();
+visible.forEach(d=>{
+const pinCol=getLiveColourState(d);
+const c=colourHex(pinCol);
+const pos=[d.lat,d.lng];
+const tip=walkMapDogTooltip(d);
+const paw=walkMapUsePawOnly(visible,d);
+if(paw){
+const pinHtml=walkMapDogPinHtml(c,d.id);
+const icon=L.divIcon({html:pinHtml,className:"",iconSize:[44,44],iconAnchor:[22,22]});
+L.marker(pos,{icon,interactive:true}).addTo(state.walk.leafletDogLayer).bindTooltip(tip,{sticky:true,direction:"top"});
+}else{
+const rM=haloRadiusMForDog(pinCol);
+const halo=L.circle(pos,{radius:rM,color:c,fillColor:c,fillOpacity:0.22,weight:2,opacity:0.88}).addTo(state.walk.leafletDogLayer);
+L.circleMarker(pos,{radius:4,color:"#fff",fillColor:c,fillOpacity:1,weight:2}).addTo(state.walk.leafletDogLayer);
+halo.bindTooltip(tip,{sticky:true,direction:"top"});
+}
+});
+if(!state.walk.leafletViewReady){
+const b=L.latLngBounds(WALK_DEMO_CENTER,WALK_DEMO_CENTER);
+visible.forEach(d=>{
+const padCol=getLiveColourState(d);
+const pad=walkMapUsePawOnly(visible,d)?40:haloRadiusMForDog(padCol);
+const deg=pad/111320;
+b.extend([d.lat+deg,d.lng]);
+b.extend([d.lat-deg,d.lng]);
+b.extend([d.lat,d.lng+deg/Math.max(0.35,Math.cos((d.lat*Math.PI)/180))]);
+b.extend([d.lat,d.lng-deg/Math.max(0.35,Math.cos((d.lat*Math.PI)/180))]);
+});
+if(visible.length)map.fitBounds(b,{padding:[28,28],maxZoom:16,minZoom:14});
+else map.setView(WALK_DEMO_CENTER,15);
+state.walk.leafletViewReady=true;
+}
+try{map.invalidateSize();}catch(e){}
+}
+function renderWalkReviewMap(){
+const sess=state.walk.completedSession;
+if(!sess||typeof L==="undefined")return;
+initWalkLeafletIfNeeded();
+const map=state.walk.leafletMap;
+if(!map||!state.walk.leafletDogLayer)return;
+if(state.walk.leafletUserGroup)state.walk.leafletUserGroup.clearLayers();
+if(!state.walk.leafletRouteLayer)state.walk.leafletRouteLayer=L.layerGroup().addTo(map);
+state.walk.leafletRouteLayer.clearLayers();
+state.walk.leafletDogLayer.clearLayers();
+const rt=sess.route||[];
+if(rt.length>=2){
+const latlngs=rt.map(p=>[p.lat,p.lng]);
+L.polyline(latlngs,{color:"#2563eb",weight:5,opacity:.95,lineJoin:"round",lineCap:"round"}).addTo(state.walk.leafletRouteLayer);
+}
+const snap=sess.liveDogsSnapshot||[];
+const visible=[...snap].sort((a,b)=>(a.distance||0)-(b.distance||0));
+visible.forEach(d=>{
+if(typeof d.lat!=="number"||typeof d.lng!=="number"||Number.isNaN(d.lat)||Number.isNaN(d.lng))return;
+const pinCol=getLiveColourState(d);
+const c=colourHex(pinCol);
+const pos=[d.lat,d.lng];
+const tip=walkMapDogTooltip(d);
+const paw=walkMapUsePawOnly(visible,d);
+if(paw){
+const pinHtml=walkMapDogPinHtml(c,d.id);
+const icon=L.divIcon({html:pinHtml,className:"",iconSize:[44,44],iconAnchor:[22,22]});
+const mk=L.marker(pos,{icon,interactive:true}).addTo(state.walk.leafletDogLayer).bindTooltip(tip,{sticky:true,direction:"top"});
+if(mk.bringToFront)mk.bringToFront();
+}else{
+const rM=haloRadiusMForDog(pinCol);
+const halo=L.circle(pos,{radius:rM,color:c,fillColor:c,fillOpacity:0.22,weight:2,opacity:0.88}).addTo(state.walk.leafletDogLayer);
+const cm=L.circleMarker(pos,{radius:4,color:"#fff",fillColor:c,fillOpacity:1,weight:2}).addTo(state.walk.leafletDogLayer);
+halo.bindTooltip(tip,{sticky:true,direction:"top"});
+if(halo.bringToFront)halo.bringToFront();
+if(cm.bringToFront)cm.bringToFront();
+}
+});
+if(state.walk.leafletRouteLayer)state.walk.leafletRouteLayer.eachLayer(function(layer){if(layer.bringToBack)layer.bringToBack();});
+if(!state.walk.leafletViewReady){
+const b=L.latLngBounds(WALK_DEMO_CENTER,WALK_DEMO_CENTER);
+rt.forEach(p=>{if(p&&typeof p.lat==="number"&&typeof p.lng==="number")b.extend([p.lat,p.lng]);});
+visible.forEach(d=>{
+if(typeof d.lat!=="number"||typeof d.lng!=="number"||Number.isNaN(d.lat)||Number.isNaN(d.lng))return;
+const rvCol=getLiveColourState(d);
+const pad=walkMapUsePawOnly(visible,d)?40:haloRadiusMForDog(rvCol);
+const deg=pad/111320;
+b.extend([d.lat+deg,d.lng]);
+b.extend([d.lat-deg,d.lng]);
+b.extend([d.lat,d.lng+deg/Math.max(0.35,Math.cos((d.lat*Math.PI)/180))]);
+b.extend([d.lat,d.lng-deg/Math.max(0.35,Math.cos((d.lat*Math.PI)/180))]);
+});
+if(visible.length||rt.length>=2)map.fitBounds(b,{padding:[28,28],maxZoom:16,minZoom:14});
+else map.setView(WALK_DEMO_CENTER,15);
+state.walk.leafletViewReady=true;
+}
+try{map.invalidateSize();}catch(e){}
+}
+function renderHome(){
+document.getElementById("homeDogName").textContent=state.myDog.name||"My Dog";
+const breedEl=document.getElementById("homeDogBreed");
+const ageEl=document.getElementById("homeDogAge");
+const sexEl=document.getElementById("homeDogSex");
+const privacyEl=document.getElementById("homeDogPrivacy");
+if(breedEl)breedEl.textContent=(state.myDog.breed||"").trim()||"—";
+if(ageEl)ageEl.textContent=(state.myDog.age||"").trim()||"—";
+if(sexEl)sexEl.textContent=(state.myDog.sex||"").trim()||"—";
+if(privacyEl){const p=state.myDog.privacy||"Standard";privacyEl.textContent=p==="Invisible"?"Standard":p;}
+const img=document.getElementById("homeDogImage");const fallback=document.getElementById("homeDogFallback");
+if(state.myDog.photo){img.src=state.myDog.photo;img.classList.remove("hidden");fallback.classList.add("hidden");}
+else{img.classList.add("hidden");fallback.classList.remove("hidden");}
+document.getElementById("lastWalkDistance").textContent=state.lastWalk.distance;
+document.getElementById("lastWalkDuration").textContent=state.lastWalk.duration;
+document.getElementById("lastWalkDogsSeen").textContent=state.lastWalk.dogsSeen;
+const interactionsList=document.getElementById("homeInteractionsList");
+if(!state.interactions.length){interactionsList.innerHTML=`<p class="small muted">No recent dogs yet. Start a walk to build this list.</p>`;}
+else{interactionsList.innerHTML=state.interactions.slice(0,8).map(item=>{
+const lost=item.lost?'<span class="tag-lost">Lost</span>':"";
+const breed=(item.breed||"").trim();
+return `<div class="interaction-item"><div class="dog-dot" style="background:${colourHex(item.colour)}"></div><div style="flex:1;min-width:0"><div><span style="font-weight:600">${item.name}</span>${lost}</div><div class="small muted">${breed||"—"}</div></div></div>`;
+}).join("");}
+applyPremiumUI();
+}
+function formatTime(seconds){const m=Math.floor(seconds/60);const s=seconds%60;return `${m}:${String(s).padStart(2,"0")}`;}
+function clearWalkSpawnTimers(){(state.walk.spawnTimeouts||[]).forEach(t=>clearTimeout(t));state.walk.spawnTimeouts=[];}
+const WALK_DOG_POOL=[
+{id:"du1",name:"",breed:"Poodle",colour:"grey",known:false,northM:102,eastM:38,risk:"low",visibilityLevel:"standard",moveMode:"approach",displayName:"Milo",displayBreed:"Poodle",displayAge:"2y",displaySex:"Male",ownerNoteSharingEnabled:true,ownerNoteTags:["prefers_space"],ownerShortNote:"Happy to greet if invited.",ownerNoteUpdatedAt:null},
+{id:"du2",name:"",breed:"Greyhound",colour:"grey",known:false,northM:-88,eastM:62,risk:"low",visibilityLevel:"limited",moveMode:"approach",displayName:"Sky",displayBreed:"Greyhound",displayAge:"5y",displaySex:"Female",ownerNoteSharingEnabled:true,ownerNoteTags:["nervous_with_unfamiliar_people"],ownerShortNote:"",ownerNoteUpdatedAt:null},
+{id:"du3",name:"",breed:"Beagle",colour:"grey",known:false,northM:72,eastM:-58,risk:"med",visibilityLevel:"standard",moveMode:"pass_by",displayName:"Bailey",displayBreed:"Beagle",displayAge:"3y",displaySex:"Male",ownerNoteSharingEnabled:true,ownerNoteTags:["may_react_if_approached_too_quickly"],ownerShortNote:"Slow approach works best.",ownerNoteUpdatedAt:null},
+{id:"d1",name:"Max",breed:"Labrador",colour:"green",known:true,northM:340,eastM:-260,risk:"low",visibilityLevel:"standard",moveMode:"approach",age:"4y",sex:"Male",ownerNoteSharingEnabled:true,ownerNoteTags:[],ownerShortNote:"Very friendly with people and dogs.",ownerNoteUpdatedAt:null},
+{id:"d2",name:"Luna",breed:"Spaniel",colour:"red",known:true,northM:-180,eastM:420,risk:"high",visibilityLevel:"limited",moveMode:"approach",age:"3y",sex:"Female",ownerNoteSharingEnabled:true,ownerNoteTags:["nervous_with_unfamiliar_dogs","may_react_if_approached_too_quickly"],ownerShortNote:"Full notes only to trusted circle.",ownerNoteUpdatedAt:null},
+{id:"d3",name:"",breed:"Dalmatian",colour:"grey",known:false,northM:220,eastM:380,risk:"low",visibilityLevel:"standard",moveMode:"pass_by",displayName:"Dot",displayBreed:"Dalmatian",displayAge:"1y",displaySex:"Female",ownerNoteSharingEnabled:false,ownerNoteTags:[],ownerShortNote:"",ownerNoteUpdatedAt:null},
+{id:"d4",name:"Rocky",breed:"Terrier",colour:"orange",known:true,northM:-410,eastM:-120,risk:"med",visibilityLevel:"limited",moveMode:"pass_by",age:"2y",sex:"Male",ownerNoteSharingEnabled:true,ownerNoteTags:["startles_easily"],ownerShortNote:"",ownerNoteUpdatedAt:null},
+{id:"d5",name:"Bessie",breed:"Collie",colour:"red",known:true,northM:480,eastM:140,risk:"high",visibilityLevel:"standard",moveMode:"approach",age:"6y",sex:"Female",ownerNoteSharingEnabled:true,ownerNoteTags:["needs_slow_introductions"],ownerShortNote:"Shy at first; treats help.",ownerNoteUpdatedAt:null},
+{id:"d6",name:"",breed:"Husky",colour:"grey",known:false,northM:-320,eastM:-380,risk:"low",visibilityLevel:"limited",moveMode:"approach",displayName:"Ghost",displayBreed:"Husky",displayAge:"4y",displaySex:"Male",ownerNoteSharingEnabled:true,ownerNoteTags:["nervous_with_unfamiliar_dogs"],ownerShortNote:"",ownerNoteUpdatedAt:null},
+{id:"du4",name:"",breed:"Cocker Spaniel",colour:"grey",known:false,northM:155,eastM:-125,risk:"low",visibilityLevel:"limited",moveMode:"approach",displayName:"Pip",displayBreed:"Cocker Spaniel",displayAge:"7y",displaySex:"Female",ownerNoteSharingEnabled:false,ownerNoteTags:[],ownerShortNote:"",ownerNoteUpdatedAt:null},
+{id:"du5",name:"",breed:"French Bulldog",colour:"grey",known:false,northM:-165,eastM:95,risk:"low",visibilityLevel:"standard",moveMode:"approach",displayName:"Olive",displayBreed:"French Bulldog",displayAge:"5y",displaySex:"Female",ownerNoteSharingEnabled:true,ownerNoteTags:["prefers_space","nervous_with_unfamiliar_dogs"],ownerShortNote:"Please ask before saying hello.",ownerNoteUpdatedAt:null}
+];
+function startWalk(){
+if(state.walk.active)return;
+closeWalkDogOverlay();
+clearWalkProximityInlineAlert();
+destroyWalkLeaflet();
+clearWalkSpawnTimers();
+state.walk.completedSession=null;
+/* New walk session only: does not clear or replace state.dogs.known (Dogs tab stays cumulative). */
+state.walk.active=true;state.walk.seconds=0;state.walk.distanceKm=0;state.walk.liveDogs=[];state.walk.lastAlertAt=0;state.walk.lastAlertKind="";state.walk.leafletViewReady=false;
+state.walk.startTime=Date.now();state.walk.route=[];state.walk.encounters=[];state.walk.savedUnknownThisWalk=[];
+state.walk.route.push({t:Date.now(),lat:WALK_DEMO_CENTER[0],lng:WALK_DEMO_CENTER[1]});
+const baseDelay=state.isPremium?2200:4000;
+let idx=0;
+function spawnNext(){
+if(!state.walk.active||idx>=WALK_DOG_POOL.length)return;
+const src=WALK_DOG_POOL[idx];
+const nm=src.northM,em=src.eastM;
+const[lat,lng]=walkDogLatLngFromOffsets(nm,em);
+const st=src.known?"known":"unknown";
+const dog={...src,id:"live-"+Date.now()+"-"+idx,northM:nm,eastM:em,lat,lng,distance:Math.max(18,Math.round(Math.hypot(nm,em))),visibilityLevel:src.visibilityLevel||"standard",moveMode:src.moveMode||"approach",dogStatus:st,status:st,wasEncountered:false,wasSaved:false,matched:false,_encounterLogged:false,_seenLogged:false,_passedPeak:false,age:src.age||"",sex:src.sex||"",displayName:src.displayName||"",displayBreed:src.displayBreed||src.breed||"",displayAge:src.displayAge||"",displaySex:src.displaySex||"",ownerNoteSharingEnabled:src.ownerNoteSharingEnabled!==false,ownerNoteTags:src.ownerNoteTags||[],ownerShortNote:src.ownerShortNote||"",ownerNoteUpdatedAt:src.ownerNoteUpdatedAt!=null?src.ownerNoteUpdatedAt:null};
+idx++;
+state.walk.liveDogs.push(dog);
+renderWalk();
+if(idx<WALK_DOG_POOL.length)state.walk.spawnTimeouts.push(setTimeout(spawnNext,baseDelay));
+}
+spawnNext();
+clearInterval(state.walk.interval);
+state.walk.interval=setInterval(()=>{
+state.walk.seconds+=1;
+state.walk.distanceKm=Math.min(4.8,state.walk.distanceKm+0.012);
+sampleWalkRoutePoint();
+const next=[];
+for(const dog of state.walk.liveDogs){
+const moved=stepLiveDogPositions(dog);
+processWalkLiveEncounters(moved);
+if(moved.distance<=WALK_MAX_RANGE_M)next.push(moved);
+}
+state.walk.liveDogs=next;
+walkProximityAlerts();
+renderWalk();
+},1000);
+document.getElementById("walkStateLabel").textContent="Walk active · scanning";
+showScreen("walk");renderWalk();applyPremiumUI();
+showBanner("Walk started — nearby dogs will appear gradually",3200,"info");
+}
+function simulateBeep(strong){
+try{
+const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+const ctx=new C();const o=ctx.createOscillator();const g=ctx.createGain();
+o.connect(g);g.connect(ctx.destination);o.frequency.value=strong?880:520;
+g.gain.setValueAtTime(0.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(strong?0.08:0.04,ctx.currentTime+0.02);
+g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+(strong?0.22:0.12));
+o.start();o.stop(ctx.currentTime+0.25);
+}catch(e){}
+}
+function walkProximityAlerts(){
+if(!state.walk.active)return;
+applyLiveWalkDerivedState();
+const now=Date.now();const sorted=dogsSortedByDistance();
+let redNearby=false;
+for(const d of sorted){
+if(getLiveRecognitionState(d)!=="interacted")continue;
+if(getLiveColourState(d)==="red"&&d.distance<52){redNearby=true;break;}
+}
+if(!redNearby)return;
+if(now-state.walk.lastAlertAt<6500&&state.walk.lastAlertKind==="red")return;
+state.walk.lastAlertAt=now;state.walk.lastAlertKind="red";
+if(state.settings.vibrations&&navigator.vibrate)navigator.vibrate([0,120,60,120]);
+if(state.settings.sound)simulateBeep(true);
+showWalkProximityInlineAlert("High-attention dog nearby — consider more space",4500,"strong");
+}
+function stopWalk(){
+closeWalkDogOverlay();
+clearWalkProximityInlineAlert();
+applyLiveWalkDerivedState();
+if(syncLiveSightingsToDogsList())renderDogs();
+const session=freezeWalkSessionPayload();
+state.walk.completedSession=session;
+state.docs.unshift({id:"walkdoc-"+session.endTime,type:"walk",createdAt:session.endTime,payload:JSON.parse(JSON.stringify(session))});
+mergePremiumInsightsAfterWalk(session);
+state.lastWalk.distance=`${state.walk.distanceKm.toFixed(1)} km`;
+state.lastWalk.duration=`${Math.max(1,Math.floor(state.walk.seconds/60))} min`;
+state.lastWalk.dogsSeen=session.liveDogsSnapshot.length;
+state.lastWalk.endedAt=session.endTime;
+state.lastWalk.encounterCount=session.encounters.length;
+state.lastWalk.savedUnknownCount=session.savedUnknownDogs.length;
+state.lastWalk.routePoints=session.route.length;
+state.walk.leafletViewReady=false;
+state.walk.active=false;clearInterval(state.walk.interval);state.walk.interval=null;clearWalkSpawnTimers();
+state.walk.liveDogs=[];
+const seen=session.liveDogsSnapshot.map(d=>({name:d.known&&(d.name||"").trim()?d.name:"Unknown",colour:d.colour,lost:false,breed:(d.breed||"").trim()}));
+const merged=[...seen,...state.interactions];
+const uniq=[];const keys=new Set();
+for(const x of merged){const k=x.name+"|"+x.colour;if(keys.has(k))continue;keys.add(k);uniq.push(x);}
+state.interactions=uniq.slice(0,12);
+/* lastWalk + interactions updated for Home; dogs.known remains persistent (only ever mutated via add/sync/save flows). */
+renderWalk();renderHome();
+showBanner("Walk saved · recent dogs updated",2600);
+}
+function renderWalk(){
+const inactive=document.getElementById("walkInactiveState");const active=document.getElementById("walkActiveState");
+const chatBtn=document.getElementById("walkLiveChatBtn");
+const walkLbl=document.getElementById("walkStateLabel");
+const inTitle=document.getElementById("walkInactiveTitle");
+const inBody=document.getElementById("walkInactiveBody");
+const reviewMode=!state.walk.active&&state.walk.completedSession;
+const stopBtn=document.getElementById("stopWalkBtn");
+const addBtn=document.getElementById("openAddDogBtn");
+const doneStart=document.getElementById("walkCompletedStartBtn");
+const actionRow=document.getElementById("walkActionRow");
+const liveTitle=document.getElementById("liveDogSectionTitle");
+if(!state.walk.active&&!reviewMode){
+destroyWalkLeaflet();
+inactive.classList.remove("hidden");active.classList.add("hidden");
+clearWalkProximityInlineAlert();
+if(chatBtn)chatBtn.classList.add("hidden");
+if(walkLbl)walkLbl.textContent="Ready to start";
+if(inTitle&&inBody){
+inTitle.textContent="Walk not active";
+inBody.textContent="Start a walk to appear on the map and detect nearby dogs.";
+}
+if(actionRow)actionRow.classList.remove("action-row--single");
+if(stopBtn)stopBtn.classList.remove("hidden");
+if(addBtn)addBtn.classList.remove("hidden");
+if(doneStart)doneStart.classList.add("hidden");
+return;
+}
+if(reviewMode){
+inactive.classList.add("hidden");active.classList.remove("hidden");
+if(walkLbl)walkLbl.textContent="Last walk saved";
+clearWalkProximityInlineAlert();
+if(chatBtn)chatBtn.classList.add("hidden");
+if(liveTitle)liveTitle.textContent="Dogs this walk";
+if(stopBtn)stopBtn.classList.add("hidden");
+if(addBtn)addBtn.classList.add("hidden");
+if(doneStart){doneStart.classList.remove("hidden");if(actionRow)actionRow.classList.add("action-row--single");}
+const s=state.walk.completedSession;
+document.getElementById("walkTimeStat").textContent=formatTime(s.elapsedSeconds||0);
+document.getElementById("walkDistanceStat").textContent=(s.distanceKm||0).toFixed(1);
+const snapLen=(s.liveDogsSnapshot||[]).length;
+document.getElementById("walkNearbyCountStat").textContent=String(snapLen);
+const nLabel=document.getElementById("walkNearbyLabel");
+if(nLabel)nLabel.textContent="Dogs on walk";
+const snap=[...(s.liveDogsSnapshot||[])].sort((a,b)=>(a.distance||0)-(b.distance||0));
+document.getElementById("liveDogBar").innerHTML=snap.map(d=>buildLiveDogRowHtml(d,true)).join("")||`<p class="small muted">No dogs recorded on this walk.</p>`;
+renderWalkReviewMap();
+applyPremiumUI();
+refreshWalkDogOverlayIfOpen();
+return;
+}
+inactive.classList.add("hidden");active.classList.remove("hidden");
+if(actionRow)actionRow.classList.remove("action-row--single");
+if(stopBtn)stopBtn.classList.remove("hidden");
+if(addBtn)addBtn.classList.remove("hidden");
+if(doneStart)doneStart.classList.add("hidden");
+if(liveTitle)liveTitle.textContent="Live dogs";
+if(walkLbl)walkLbl.textContent="Walk active · scanning";
+applyLiveWalkDerivedState();
+if(syncLiveSightingsToDogsList())renderDogs();
+const total=state.walk.liveDogs.length;const mapCount=mapDogsForWalk().length;
+document.getElementById("walkTimeStat").textContent=formatTime(state.walk.seconds);
+document.getElementById("walkDistanceStat").textContent=state.walk.distanceKm.toFixed(1);
+document.getElementById("walkNearbyCountStat").textContent=String(state.isPremium?total:mapCount);
+const nLabel=document.getElementById("walkNearbyLabel");
+if(nLabel)nLabel.textContent=state.isPremium?"Dogs nearby":"On map (free)";
+if(chatBtn)chatBtn.classList.toggle("hidden",!state.isPremium);
+renderWalkMap();
+const sorted=dogsSortedByDistance();
+document.getElementById("liveDogBar").innerHTML=sorted.map(d=>buildLiveDogRowHtml(d,false)).join("")||`<p class="small muted">Scanning… dogs will appear shortly.</p>`;
+applyPremiumUI();
+refreshWalkDogOverlayIfOpen();
+}
+function renderDogs(){
+const list=document.getElementById("dogsList");
+const filter=document.querySelector(".filter-btn.active")?.dataset.filter||"all";
+const search=document.getElementById("dogsSearch").value.trim().toLowerCase();
+let dogs=[...knownDogs()];
+/* Full persistent known list; filter/search only — not scoped to lastWalk or active walk. */
+if(filter==="known")dogs=dogs.filter(d=>d.known);
+if(filter==="unknown")dogs=dogs.filter(d=>!d.known);
+if(search)dogs=dogs.filter(d=>(d.name||"").toLowerCase().includes(search)||(d.breed||"").toLowerCase().includes(search)||(d.note||"").toLowerCase().includes(search)||(d.dogStatus||d.status||"").toLowerCase().includes(search));
+list.innerHTML=dogs.map(d=>{
+const lostTag=d.lost?'<span class="tag-lost">Lost</span>':"";
+const row=dogsListRowFields(d);
+return `<button class="dog-list-item" data-dog-id="${d.id}" style="text-align:left;width:100%;border:0;cursor:pointer">${d.photo?`<div class="dog-circle-icon"><img src="${d.photo}" alt="${d.name}"></div>`:walkLiveListPinHtml(d.colour,d.id)}<div style="flex:1;min-width:0"><div style="font-weight:600;display:flex;align-items:center;flex-wrap:wrap;gap:6px">${d.name||"Unknown"}${lostTag}</div><div class="small muted">${row.breed}</div><div class="tiny muted" style="margin-top:2px">${row.note}</div></div><div class="dog-dot" style="background:${colourHex(d.colour)}"></div></button>`;
+}).join("");
+list.querySelectorAll("[data-dog-id]").forEach(btn=>btn.addEventListener("click",()=>openDogDetail(btn.dataset.dogId)));
+}
+function renderSettings(){if(state.myDog.privacy==="Invisible")state.myDog.privacy="Standard";document.getElementById("settingsDogName").textContent=state.myDog.name||"My Dog";document.getElementById("settingsDogBreed").textContent=state.myDog.breed||"Breed";document.getElementById("toggleVibrations").classList.toggle("on",state.settings.vibrations);document.getElementById("toggleSound").classList.toggle("on",state.settings.sound);document.querySelectorAll("[data-setting-privacy]").forEach(card=>card.classList.toggle("selected",card.dataset.settingPrivacy===state.myDog.privacy));}
+function openSheet(id){document.getElementById("sheetBackdrop").classList.add("active");document.getElementById(id).classList.add("active");}
+function closeSheets(){document.getElementById("sheetBackdrop").classList.remove("active");document.querySelectorAll(".sheet").forEach(s=>s.classList.remove("active"));}
+function openDogDetail(id){state.selectedDogId=id;state.temp.detailDogPending=false;const dog=knownDogs().find(d=>String(d.id)===String(id));if(!dog)return;const lim=isLimitedVisibility(dog);const photoHint=document.getElementById("detailPhotoHint");const rmBtn=document.getElementById("detailDogRemovePhotoBtn");const wrap=document.getElementById("detailDogPhotoWrap");if(lim){photoHint.classList.add("hidden");rmBtn.classList.add("hidden");wrap.classList.add("detail-dog-avatar-tap--disabled");wrap.setAttribute("aria-disabled","true");wrap.tabIndex=-1;}else{photoHint.classList.remove("hidden");wrap.classList.remove("detail-dog-avatar-tap--disabled");wrap.removeAttribute("aria-disabled");wrap.tabIndex=0;}document.getElementById("detailDogName").textContent=dog.name||"Unknown";document.getElementById("detailDogSub").textContent=lim?((dog.profileData&&dog.profileData.limited&&dog.profileData.limited.breed)||dog.breed||"—"):(dog.breed||"No breed added");document.getElementById("detailNameInput").value=dog.name||"";const bIn=document.getElementById("detailBreedInput");const nIn=document.getElementById("detailNotesInput");bIn.readOnly=lim;nIn.readOnly=lim;if(lim){bIn.value=(dog.profileData&&dog.profileData.limited&&dog.profileData.limited.breed)||dog.breed||"—";nIn.value=(dog.profileData&&dog.profileData.limited&&dog.profileData.limited.note)||dog.note||"—";}else{bIn.value=dog.breed||"";nIn.value=dog.note||"";}const lsEl=document.getElementById("detailLastSeen");const scEl=document.getElementById("detailSeenCount");if(state.isPremium){lsEl.textContent=dog.lastSeen||"Today";scEl.textContent=String(dog.seenCount||1);}else{lsEl.textContent="—";scEl.textContent="—";}const detailPhoto=document.getElementById("detailDogPhoto");const detailFallback=document.getElementById("detailDogFallback");if(dog.photo){detailPhoto.src=dog.photo;detailPhoto.classList.remove("hidden");detailFallback.classList.add("hidden");if(!lim)rmBtn.classList.remove("hidden");}else{detailPhoto.classList.add("hidden");detailFallback.innerHTML=walkDetailPinHtml(dog.colour,dog.id);detailFallback.classList.remove("hidden");rmBtn.classList.add("hidden");}document.querySelectorAll("[data-detail-colour]").forEach(btn=>{btn.classList.remove("active","green","orange","red","blue");});const dc=dog.colour;if(dc==="green"||dc==="orange"||dc==="red")document.querySelectorAll("[data-detail-colour]").forEach(btn=>{if(btn.dataset.detailColour===dc)btn.classList.add("active",dc);});refreshDetailOwnerNotesSection(dog);document.getElementById("sheetBackdrop").classList.remove("active");document.getElementById("dogDetailSheet").classList.add("active");}
+function saveDogDetail(){const dog=knownDogs().find(d=>String(d.id)===String(state.selectedDogId));if(!dog)return;const name=document.getElementById("detailNameInput").value.trim()||"Unknown";dog.name=name;dog.known=name!=="Unknown";const lim=isLimitedVisibility(dog);if(!lim){dog.breed=document.getElementById("detailBreedInput").value.trim();dog.note=document.getElementById("detailNotesInput").value.trim();if(state.temp.detailDogPending==="CLEAR")dog.photo="";else if(typeof state.temp.detailDogPending==="string"&&state.temp.detailDogPending)dog.photo=state.temp.detailDogPending;state.temp.detailDogPending=false;if(!dog.profileData)dog.profileData={full:{},limited:{}};dog.profileData.full=Object.assign({},dog.profileData.full||{},{breed:dog.breed,note:dog.note});}if((dog.dogStatus==="unknown"||dog.dogStatus==="seen")&&dog.known){dog.dogStatus="matched";dog.status="matched";dog.matched=true;if(state.walk.active)pushWalkEncounter({liveDogId:null,name:dog.name,known:true,visibilityLevel:dog.visibilityLevel||"standard",colour:dog.colour,breed:(dog.breed||"").trim(),distanceM:null,approxLat:WALK_DEMO_CENTER[0],approxLng:WALK_DEMO_CENTER[1],interaction:"matched",listDogId:dog.id});}
+else{dog.status=dog.dogStatus||(dog.known?"known":"unknown");}
+renderDogs();renderHome();closeSheets();showBanner("Dog updated");}
+function setDetailColour(colour){if(colour!=="green"&&colour!=="orange"&&colour!=="red")return;const dog=knownDogs().find(d=>String(d.id)===String(state.selectedDogId));if(!dog)return;dog.colour=colour;const df=document.getElementById("detailDogFallback");const ph=document.getElementById("detailDogPhoto");if(df&&ph.classList.contains("hidden"))df.innerHTML=walkDetailPinHtml(colour,dog.id);document.querySelectorAll("[data-detail-colour]").forEach(btn=>{btn.classList.remove("active","green","orange","red","blue");if(btn.dataset.detailColour===colour)btn.classList.add("active",colour);});}
+function saveOtherDog(){
+const ownerPresent=state.temp.ownerPresent;
+const name=document.getElementById("otherDogName").value.trim()||"Unknown";
+const breed=document.getElementById("otherDogBreed").value.trim();
+const note=document.getElementById("otherDogNotes").value.trim();
+const photo=state.temp.otherDogPhoto||"";
+const isLost=ownerPresent==="no";
+const visibilityLevel=isLost?"limited":"standard";
+const fullNote=isLost?(note||"Lost dog report"):note;
+const ds=name!=="Unknown"?"known":"unknown";
+const newDog={id:Date.now(),name,breed,note:fullNote,colour:isLost?"red":"grey",photo,seenCount:1,lastSeen:"Today",known:name!=="Unknown",lost:isLost,visibilityLevel,dogStatus:ds,status:ds,matched:false,profileData:{full:{breed,note:fullNote},limited:{breed:name!=="Unknown"?(breed||"—"):"—",note:isLost?"Lost (limited view)":(breed?"Nearby sighting":"—")}}};
+knownDogs().unshift(newDog);
+if(state.isPremium){const kid=String(newDog.id);if(!state.premiumDogInsights.byDogId[kid])state.premiumDogInsights.byDogId[kid]={walkRefs:[],lastSeenAt:null};}
+if(state.walk.active){
+const ang=Math.random()*Math.PI*2,distM=95+Math.random()*280,nm=Math.cos(ang)*distM,em=Math.sin(ang)*distM;
+const[lat,lng]=walkDogLatLngFromOffsets(nm,em);
+state.walk.liveDogs.push({id:"new-"+Date.now(),name:newDog.known?newDog.name:"",breed:newDog.breed||"",colour:newDog.colour,distance:Math.round(distM),known:newDog.known,northM:nm,eastM:em,lat,lng,risk:isLost?"high":"low",visibilityLevel,dogStatus:newDog.dogStatus,status:newDog.dogStatus,moveMode:"approach",wasEncountered:false,wasSaved:false,matched:false,_encounterLogged:false,_seenLogged:false,_passedPeak:false,age:"",sex:"",displayName:"",displayBreed:newDog.breed||"",displayAge:"",displaySex:"",ownerNoteSharingEnabled:!!(note&&note.trim()),ownerNoteTags:[],ownerShortNote:note||"",ownerNoteUpdatedAt:note&&note.trim()?Date.now():null});
+if(!newDog.known){
+const unk=state.walk.liveDogs.filter(d=>!d.known).sort((a,b)=>a.distance-b.distance)[0];
+if(unk&&unk.distance<175){unk.wasSaved=true;pushWalkEncounter({liveDogId:unk.id,name:"Unknown",known:false,visibilityLevel:unk.visibilityLevel||visibilityLevel,colour:unk.colour,breed:"",distanceM:unk.distance,approxLat:unk.lat,approxLng:unk.lng,interaction:"saved",linkedListDogId:newDog.id});}
+state.walk.savedUnknownThisWalk.push({t:Date.now(),listDogId:newDog.id,dogId:newDog.id,visibilityLevel,approxLat:unk?unk.lat:WALK_DEMO_CENTER[0],approxLng:unk?unk.lng:WALK_DEMO_CENTER[1]});
+}
+}
+state.interactions=[{name:newDog.known?newDog.name:"Unknown",colour:newDog.colour,lost:isLost,breed:(newDog.breed||"").trim()},...state.interactions.filter(x=>!(x.name===(newDog.known?newDog.name:"Unknown")&&x.colour===newDog.colour))].slice(0,14);
+document.getElementById("otherDogName").value="";
+document.getElementById("otherDogBreed").value="";
+document.getElementById("otherDogNotes").value="";
+setOtherDogSex("");
+document.getElementById("otherWalkerName").value="";
+state.temp.otherDogPhoto="";
+document.getElementById("otherDogPhotoPreview").classList.add("hidden");
+document.getElementById("otherDogPhotoPlaceholder").classList.remove("hidden");
+renderDogs();renderHome();renderWalk();closeSheets();
+if(isLost)showBanner("Lost dog nearby — alert shared with walkers in range (demo)",4800,"strong");
+else showBanner("Dog added to walk, list, and recent dogs",2600);
+}
+function activatePremiumDemo(){
+state.isPremium=true;applyPremiumUI();renderHome();renderWalk();renderSettings();
+const ds=document.getElementById("dogDetailSheet");
+if(ds&&ds.classList.contains("active")&&state.selectedDogId!=null)openDogDetail(state.selectedDogId);
+showBanner("Premium enabled for this demo session",3200,"info");
+}
+function readFileAsDataURL(file,callback){const reader=new FileReader();reader.onload=e=>callback(e.target.result);reader.readAsDataURL(file);}
+function updateMyDogUI(){renderHome();renderSettings();}
+function setupBreedAutocomplete(){const input=document.getElementById("dogBreed");const dropdown=document.getElementById("breedSuggestions");function renderSuggestions(value){const query=value.trim().toLowerCase();if(!query){dropdown.classList.remove("active");dropdown.innerHTML="";return;}const results=breeds.filter(b=>b.toLowerCase().startsWith(query)).slice(0,8);if(!results.length){dropdown.classList.remove("active");dropdown.innerHTML="";return;}dropdown.innerHTML=results.map(b=>`<div class="breed-option" data-breed="${b}">${b}</div>`).join("");dropdown.classList.add("active");dropdown.querySelectorAll("[data-breed]").forEach(option=>option.addEventListener("click",()=>{input.value=option.dataset.breed;dropdown.classList.remove("active");}));}input.addEventListener("input",e=>renderSuggestions(e.target.value));input.addEventListener("blur",()=>setTimeout(()=>dropdown.classList.remove("active"),120));}
+
+const EMAIL_HISTORY_KEY="pawsense_demo_email_history";
+function getEmailHistory(){try{const raw=localStorage.getItem(EMAIL_HISTORY_KEY);if(!raw)return[];const arr=JSON.parse(raw);return Array.isArray(arr)?arr.filter(e=>typeof e==="string"&&e.includes("@")&&e.length<200):[];}catch(_){return[];}}
+function setEmailHistory(list){try{localStorage.setItem(EMAIL_HISTORY_KEY,JSON.stringify(list.slice(0,24)));}catch(_){}}
+function rememberEmail(raw){const t=raw.trim();if(!t||!t.includes("@"))return;const k=t.toLowerCase();const list=getEmailHistory();setEmailHistory([t,...list.filter(e=>e.toLowerCase()!==k)]);}
+function setupEntryEmailAutocomplete(){const input=document.getElementById("entryEmail");const dd=document.getElementById("emailHistoryDropdown");if(!input||!dd)return;function render(){const q=input.value.trim().toLowerCase();const all=getEmailHistory();const list=q?all.filter(em=>em.toLowerCase().startsWith(q)):all;dd.innerHTML="";if(!list.length){dd.classList.remove("active");return;}list.slice(0,15).forEach(em=>{const row=document.createElement("div");row.className="breed-option";row.textContent=em;row.addEventListener("mousedown",e=>e.preventDefault());row.addEventListener("click",()=>{input.value=em;dd.classList.remove("active");});dd.appendChild(row);});dd.classList.add("active");}input.addEventListener("input",render);input.addEventListener("focus",()=>{if(getEmailHistory().length)render();});input.addEventListener("blur",()=>setTimeout(()=>dd.classList.remove("active"),160));}
+
+document.getElementById("startEntryBtn").addEventListener("click",()=>{const name=document.getElementById("entryName").value.trim();const email=document.getElementById("entryEmail").value.trim();rememberEmail(email);state.user.name=name;state.user.email=email;showScreen("onboardingProfile");});
+document.getElementById("dogAgeUnitGroup").addEventListener("click",e=>{const btn=e.target.closest("[data-age-unit]");if(!btn)return;setDogAgeUnit(btn.dataset.ageUnit);});
+document.getElementById("dogSexGroup").addEventListener("click",e=>{const btn=e.target.closest("[data-sex]");if(!btn)return;const g=document.getElementById("dogSexGroup");if(btn.classList.contains("selected")){btn.classList.remove("selected");btn.setAttribute("aria-pressed","false");}else{g.querySelectorAll("[data-sex]").forEach(b=>{b.classList.remove("selected");b.setAttribute("aria-pressed","false");});btn.classList.add("selected");btn.setAttribute("aria-pressed","true");}});
+document.getElementById("otherDogSexGroup").addEventListener("click",e=>{const btn=e.target.closest("[data-other-sex]");if(!btn)return;const g=document.getElementById("otherDogSexGroup");g.querySelectorAll("[data-other-sex]").forEach(b=>{b.classList.remove("selected");b.setAttribute("aria-pressed","false");});btn.classList.add("selected");btn.setAttribute("aria-pressed","true");});
+document.getElementById("toPrivacyBtn").addEventListener("click",()=>{const n=document.getElementById("dogAgeNum").value.trim();const u=getDogAgeUnit();state.myDog.name=document.getElementById("dogName").value.trim()||"My Dog";state.myDog.breed=document.getElementById("dogBreed").value.trim();state.myDog.age=n?`${n} ${u}`:"";state.myDog.sex=getDogSex();state.myDog.ownerName=document.getElementById("dogOwnerName").value.trim();state.myDog.walkerNotes=document.getElementById("dogWalkerNotes").value.trim();showScreen("onboardingPrivacy");});
+document.querySelectorAll("[data-privacy]").forEach(card=>card.addEventListener("click",()=>{document.querySelectorAll("[data-privacy]").forEach(c=>c.classList.remove("selected"));card.classList.add("selected");state.myDog.privacy=card.dataset.privacy;}));
+document.getElementById("finishOnboardingBtn").addEventListener("click",()=>{renderHome();showScreen("home");});
+
+const myDogPhotoInput=document.getElementById("myDogPhotoInput");
+document.getElementById("myDogPhotoBlock").addEventListener("click",()=>myDogPhotoInput.click());
+myDogPhotoInput.addEventListener("change",e=>{const file=e.target.files&&e.target.files[0];if(!file)return;readFileAsDataURL(file,data=>{state.myDog.photo=data;const img=document.getElementById("myDogPhotoPreview");img.src=data;img.classList.remove("hidden");document.getElementById("myDogPhotoPlaceholder").classList.add("hidden");updateMyDogUI();});e.target.value="";});
+document.getElementById("deleteMyDogPhotoBtn").addEventListener("click",e=>{e.stopPropagation();state.myDog.photo="";document.getElementById("myDogPhotoPreview").classList.add("hidden");document.getElementById("myDogPhotoPlaceholder").classList.remove("hidden");updateMyDogUI();});
+
+document.getElementById("homeStartWalkBtn").addEventListener("click",startWalk);
+document.getElementById("editProfileFromHomeBtn").addEventListener("click",()=>showScreen("onboardingProfile"));
+document.getElementById("openPremiumBtn").addEventListener("click",()=>showScreen("premium"));
+
+document.getElementById("walkScreenStartBtn").addEventListener("click",startWalk);
+document.getElementById("walkCompletedStartBtn").addEventListener("click",startWalk);
+document.getElementById("stopWalkBtn").addEventListener("click",stopWalk);
+document.getElementById("openAddDogBtn").addEventListener("click",()=>openSheet("addDogSheet"));
+
+const otherDogPhotoInput=document.getElementById("otherDogPhotoInput");
+document.getElementById("otherDogPhotoBlock").addEventListener("click",()=>otherDogPhotoInput.click());
+otherDogPhotoInput.addEventListener("change",e=>{const file=e.target.files&&e.target.files[0];if(!file)return;readFileAsDataURL(file,data=>{state.temp.otherDogPhoto=data;const img=document.getElementById("otherDogPhotoPreview");img.src=data;img.classList.remove("hidden");document.getElementById("otherDogPhotoPlaceholder").classList.add("hidden");});e.target.value="";});
+document.getElementById("deleteOtherDogPhotoBtn").addEventListener("click",e=>{e.stopPropagation();state.temp.otherDogPhoto="";document.getElementById("otherDogPhotoPreview").classList.add("hidden");document.getElementById("otherDogPhotoPlaceholder").classList.remove("hidden");});
+document.querySelectorAll("[data-owner-present]").forEach(card=>card.addEventListener("click",()=>{document.querySelectorAll("[data-owner-present]").forEach(c=>c.classList.remove("selected"));card.classList.add("selected");state.temp.ownerPresent=card.dataset.ownerPresent;}));
+document.getElementById("saveDogBtn").addEventListener("click",saveOtherDog);
+document.getElementById("closeSheetBtn").addEventListener("click",closeSheets);
+document.getElementById("sheetBackdrop").addEventListener("click",closeSheets);
+
+document.getElementById("dogsSearch").addEventListener("input",renderDogs);
+document.querySelectorAll(".filter-btn").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");renderDogs();}));
+
+document.getElementById("saveDogDetailBtn").addEventListener("click",saveDogDetail);
+document.getElementById("closeDogDetailBtn").addEventListener("click",closeSheets);
+document.querySelectorAll("[data-detail-colour]").forEach(btn=>btn.addEventListener("click",()=>setDetailColour(btn.dataset.detailColour)));
+const detailDogPhotoInput=document.getElementById("detailDogPhotoInput");
+document.getElementById("detailDogPhotoWrap").addEventListener("click",()=>{const w=document.getElementById("detailDogPhotoWrap");if(w.classList.contains("detail-dog-avatar-tap--disabled"))return;detailDogPhotoInput.click();});
+document.getElementById("detailDogPhotoWrap").addEventListener("keydown",e=>{if(e.key!=="Enter"&&e.key!==" ")return;const w=document.getElementById("detailDogPhotoWrap");if(w.classList.contains("detail-dog-avatar-tap--disabled"))return;e.preventDefault();detailDogPhotoInput.click();});
+detailDogPhotoInput.addEventListener("change",e=>{const file=e.target.files&&e.target.files[0];if(!file)return;readFileAsDataURL(file,data=>{state.temp.detailDogPending=data;const detailPhoto=document.getElementById("detailDogPhoto");detailPhoto.src=data;detailPhoto.classList.remove("hidden");document.getElementById("detailDogFallback").classList.add("hidden");document.getElementById("detailDogRemovePhotoBtn").classList.remove("hidden");});e.target.value="";});
+document.getElementById("detailDogRemovePhotoBtn").addEventListener("click",e=>{e.preventDefault();e.stopPropagation();const dog=knownDogs().find(d=>String(d.id)===String(state.selectedDogId));if(!dog)return;if(dog.photo)state.temp.detailDogPending="CLEAR";else state.temp.detailDogPending=false;document.getElementById("detailDogPhoto").classList.add("hidden");document.getElementById("detailDogFallback").innerHTML=walkDetailPinHtml(dog.colour,dog.id);document.getElementById("detailDogFallback").classList.remove("hidden");document.getElementById("detailDogRemovePhotoBtn").classList.add("hidden");});
+
+document.getElementById("editProfileFromSettingsBtn").addEventListener("click",()=>showScreen("onboardingProfile"));
+document.getElementById("openPremiumFromSettingsBtn").addEventListener("click",()=>showScreen("premium"));
+document.getElementById("toggleVibrations").addEventListener("click",e=>{state.settings.vibrations=!state.settings.vibrations;e.currentTarget.classList.toggle("on",state.settings.vibrations);});
+document.getElementById("toggleSound").addEventListener("click",e=>{state.settings.sound=!state.settings.sound;e.currentTarget.classList.toggle("on",state.settings.sound);});
+document.getElementById("resetAlertsBtn").addEventListener("click",()=>{state.settings.vibrations=true;state.settings.sound=true;renderSettings();showBanner("Alerts reset to default");});
+document.querySelectorAll("[data-setting-privacy]").forEach(card=>card.addEventListener("click",()=>{state.myDog.privacy=card.dataset.settingPrivacy;renderSettings();}));
+
+document.getElementById("continueFreeBtn").addEventListener("click",()=>showScreen("home"));
+document.getElementById("unlockPremiumBtn").addEventListener("click",()=>{activatePremiumDemo();showScreen("home");});
+document.getElementById("walkLiveChatBtn")?.addEventListener("click",()=>showBanner("Live chat opens here in production — demo only",2800,"info"));
+document.getElementById("screen-walk")?.addEventListener("click",e=>{
+const row=e.target.closest("[data-live-dog-id]");
+if(!row||row.dataset.liveOpen!=="1")return;
+e.preventDefault();
+openWalkLiveDogOverlay(row.getAttribute("data-live-dog-id"));
+});
+document.getElementById("walkDogOverlayClose")?.addEventListener("click",e=>{e.preventDefault();closeWalkDogOverlay();});
+document.getElementById("walkDogOverlay")?.addEventListener("click",e=>{
+const btn=e.target.closest("[data-walk-overlay-cat]");
+if(!btn||!state.walkDogOverlay.isOpen)return;
+e.preventDefault();
+applyWalkOverlayCategory(state.walkDogOverlay.dogId,btn.getAttribute("data-walk-overlay-cat"));
+});
+document.querySelectorAll(".nav-item").forEach(btn=>btn.addEventListener("click",()=>showScreen(btn.dataset.screen)));
+
+setupBreedAutocomplete();
+setupEntryEmailAutocomplete();
+applyPremiumUI();
+renderHome();
+renderDogs();
+renderWalk();
+renderSettings();
+</script>
+</body>
+</html>
