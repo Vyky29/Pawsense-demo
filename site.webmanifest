@@ -1,0 +1,16 @@
+{
+  "name": "PawSense",
+  "short_name": "PawSense",
+  "start_url": "./pawsense_demo_fixed.html",
+  "display": "standalone",
+  "background_color": "#e8ebf4",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "./icon-pawsense.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
